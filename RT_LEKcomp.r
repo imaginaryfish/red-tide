@@ -6,284 +6,321 @@
 # todo:   NA
 
 rm(list=ls())
-setwd("C:/Users/mkarnauskas/Desktop/RT_severity")
+setwd("C:/Users/mandy.karnauskas/Desktop/RT_severity")
 
-#  download most recent version of live spreadsheet from Google Drive  (search "RT_Summary_Spreadsheet")
-#  remove second row 
-d <- read.table("RT_Summary_Spreadsheet_Jun17.csv", header=T, skip=0, sep=",", quote="\"")
+# import data -------------
+d <- read.table("RT_Summary_Spreadsheet_June2020.csv", header=T, skip=0, sep=",", quote="\"", stringsAsFactors = F) 
 
 head(d)
 names(d)
+d$Community[which(d$Community == "Evergaldes City")] <- "Everglades City"  # fix spelling
 
-d <- d[1:19]   # cut out long character columns
+# cut out notes columns and check input -------------------------
+d <- d[1:19]  
 head(d)
+names(d)
 
-table(d$SEFSC.or.SERO)
-table(d$Interview.Number)
-length(unique(d$Interview.Number))    # number of interviews == 42
-table(d$Interview.ID)
+table(d$SEFSC.or.SERO, useNA="always")
+table(d$Interview.Number, useNA="always")
+length(unique(d$Interview.Number))                    # number of interviews == 62
+table(d$Interview.ID, useNA="always")
 length(table(d$Interview.ID))
-table(d$Interviewee)
-table(d$Date.Of.Interview)            # Nov 2018 to May 2019
-table(d$RT.Event.Period)
-table(d$Year)
-table(d$Community)
-table(d$Offshore.or.Inshore.)       
-table(d$Area.Fished)
-table(d$Scale)
-table(d$Temporal.Extent)
-table(d$Spatial.Extent.of.Red.Tide)
-table(d$Map.Legend)
-table(d$Areas.Fished.that.are.not.affected.by.RT)
-table(d$Species.Targeted)
-table(d$Species.Affected)
-table(d$Species.NOT.affected)
-table(d$Recovery.Time)
+table(d$Interviewee, useNA="always")
+table(d$Date.Of.Interview, useNA="always")    
+# table(d$RT.Event.Period, useNA="always")
+table(d$Year, useNA="always")
+table(d$Community, useNA="always")
+table(d$Offshore.or.Inshore., useNA="always")       
+table(d$Area.Fished, useNA="always")
+table(d$SCALE, useNA="always")
+table(d$Temporal.Extent, useNA="always")
+table(d$Spatial.Extent.of.Red.Tide, useNA="always")
+table(d$Map.Legend, useNA="always")
+table(d$Areas.Fished.that.are.not.affected.by.RT, useNA="always")
+table(d$Species.Targeted, useNA="always")
+table(d$Species.Affected, useNA="always")
+table(d$Species.NOT.affected, useNA="always")
+table(d$Recovery.Time_Months, useNA="always")
 
+# extract date of interview info -------------------------
+d$Date.Of.Interview <- as.character((d$Date.Of.Interview))
+for (i in 1:nrow(d)) {
+  if (nchar(d$Date.Of.Interview[i])==7) { d$Date.Of.Interview[i] <- paste0(0, d$Date.Of.Interview[i]) }
+}
+sort(strptime(d$Date.Of.Interview, format="%m%d%Y")) # interviews from Nov 2018 to Dec 2019
+
+# calculate number of interviews per community
 tab <- table(d$Interview.ID, d$Community)
 tab[which(tab>0)] <- 1
 data.frame(colSums(tab))
 
-############   define areas    #################################################
-Pinellas <- c("Clearwater", "Madeira Beach", "St. Petersberg", "Tarpon Springs")
-Charlotte <- c("Boca Grande", "Cape Haze", "Placida")
-Collier <- c("Chokoloskee",  "Everglades City", "Goodland", "Naples")
-Manatee <- c("Cortez", "Cortez\n")
-Lee <- c("Fort Myers Beach", "Pine Island", "Plantation Island")
-
+# define counties --------------------------------------
 d$County <- NA
-d$County[which(d$Community %in% Pinellas)] <- "Pinellas"
-d$County[which(d$Community %in% Charlotte)] <- "Charlotte"
-d$County[which(d$Community %in% Collier)] <- "Collier"
-d$County[which(d$Community %in% Manatee)] <- "Manatee"
-d$County[which(d$Community %in% Lee)] <- "Lee"
+d$County[which(d$Community %in% c("Clearwater", "Madeira Beach", "St. Petersberg", "Tarpon Springs"))]<- "Pinellas"
+d$County[which(d$Community %in% c("Boca Grande", "Cape Haze", "Placida"))]                            <- "Charlotte"
+d$County[which(d$Community %in% c("Chokoloskee",  "Everglades City", "Goodland", "Naples"))]          <- "Collier"
+d$County[which(d$Community %in% c("Cortez"))]                                                         <- "Manatee"
+d$County[which(d$Community %in% c("Fort Myers Beach", "Pine Island", "Plantation Island"))]           <- "Lee"
+d$County[which(d$Community %in% c("Panama City"))]                                                    <- "Bay"
+d$County[which(d$Community %in% c("Sarasota"))]                                                       <- "Sarasota"
+d$County[which(d$Community %in% c("Steinhatchee"))]                                                   <- "Taylor"
 
 table(d$Community, d$County)
+which(rowSums(table(d$Community, d$County))==0)  # check for zeros
 
-d$County <- factor(d$County, levels = c("Collier", "Lee", "Charlotte", "Manatee", "Pinellas"))
+d$County <- factor(d$County, levels = c("Collier", "Lee", "Charlotte", "Sarasota", "Manatee", "Pinellas", "Taylor", "Bay"))
 d$County
+table(d$County, useNA = "always")
 
-############   convert comments about severity into 4 categories    ############
-table(d$Scale)
-d$rat <- NA
+d$region <- NA 
+d$region[which(d$County %in% c("Collier", "Lee", "Charlotte"))]     <- "SW FL"
+d$region[which(d$County %in% c("Sarasota", "Manatee", "Pinellas"))] <- "W Central FL"
+d$region[which(d$County %in% c("Taylor"))]                          <- "Big Bend"
+d$region[which(d$County %in% c("Bay"))]                             <- "Panhandle"
+d$region <- factor(d$region, levels = c("SW FL", "W Central FL", "Big Bend" , "Panhandle"))
+d$region
+table(d$region, d$County)
+table(d$region, useNA = "always")
 
-# update this section as new interviews come onboard
-# key word search
-d$rat[grep("minor", d$Scale)] <- "minor"
-d$rat[grep("significant", d$Scale)] <- "medium"
-d$rat[grep("bad", d$Scale)] <- "major"
-d$rat[grep("not bad", d$Scale)] <- "minor"
-d$rat[grep("devastating", d$Scale)] <- "devastating"
-d$rat[grep("10/10", d$Scale)] <- "devastating"
-d$rat[grep("9.5/10", d$Scale)] <- "devastating"
-# specific term assignments 
-l_min <- c("not bad", "normal", "small", "small events", "patchy")
-l_med <- c("bad (3/10)")
-l_maj <- c("worst", "extensive", "intense", "major", "severe", "terrible", "miserable")
-# convert lists to their categories                            
-d$rat[d$Scale %in% l_min] <- "minor"
-d$rat[d$Scale %in% l_med] <- "medium"
-d$rat[d$Scale %in% l_maj] <- "major"
-#  d$rat[d$Scale %in% l_dev] <- "devastating"
-# check results
-table(d$Scale, d$rat)
-table(d$rat, useNA="always")
-matrix(d$Scale[which(is.na(d$rat))])            # check responses markes as NAs
-# check carefully the final categorizations!
-table(droplevels(d$Scale[which(d$rat=="minor")]))
-table(droplevels(d$Scale[which(d$rat=="medium")]))
-table(droplevels(d$Scale[which(d$rat=="major")]))
-table(droplevels(d$Scale[which(d$rat=="devastating")]))
-
-table(d$rat)   # few "medium rankings -- group "minor" and "medium" together
-d$rat[which(d$rat=="medium")] <- "minor"
-
-table(droplevels(d$Scale[which(d$rat=="minor")]))
-table(droplevels(d$Scale[which(d$rat=="major")]))
-table(droplevels(d$Scale[which(d$rat=="devastating")]))
-
-table(d$rat, useNA="always")
-nrank <- 3     # use variable for number of ranking levels to automate changes in plots
-
-# end categorization
-################################################################################
-
+# convert scale to numerical ranking for plotting --------------- 
+table(d$SCALE, useNA="always")
+nrank <- 3    
+table(d$SCALE, d$Year)
+d$rat <- nrank + 1 - as.numeric(as.factor(d$SCALE))   
+table(d$SCALE, d$rat)                        
 table(d$rat, d$Year)
-d$rat1 <- nrank + 1 - as.numeric(as.factor(d$rat))   # convert rankings to 1-4 scale for plotting
-table(d$rat, d$rat1)                         # check 
-table(d$rat1, d$Year)
 
-# condense events into major red tide periods
-#
-d$Year1 <- as.numeric(as.character(d$Year))
-table(d$Year1)
-# major events are 2017-2018, 2013-2015, 2004-2005 (consecutive years with > 1 mention)
-table(is.na(d$Year1))
+# condense events into major red tide periods --------------------
 
-# categorize into the above periods
+table(d$Year)
+
+yr <- as.character(round(d$Year))
+levels(yr) <- as.character(1930:2020)
+plot(table(yr), las=2)                # look for event periods
+plot(table(yr), las=2, xlim=c(1960, 2019), ylab = "number of mentions")
+table(yr)
+
+which(table(yr) > 1)                  # 2 or more mentions
+which(table(yr) > 2)                  # 3 or more mentions
+which(table(yr) > 9)
+
+# decide how to split up - different methods for this 
+# method 1: all years of data
+# brks <- c(1930, 1950, seq(1960, 1990, 10), 2000, 2003, 2006, 2011, 2015, 2016, 2020)
+# d$event <- cut(d$Year, breaks = brks)
+
+# method 2: analyze only years with 10 or more obs
 d$event <- NA
-d$event[which(d$Year1 < 2004)] <- "prior to 2003"
-d$event[which(d$Year1 == 2005 | d$Year1 == 2004)] <- "2004-2005"
-d$event[which(d$Year1 >=2013 & d$Year1 <= 2015)] <- "2013-2015"
-d$event[which(d$Year1 >=2017)] <- "2017-2018"
-table(d$event, d$Year, useNA="always")             # check results
+lis <- as.numeric(names(which(table(yr) > 9)))  # create list of year-specific events only
+d$event[which(yr %in% lis)] <- yr[which(yr %in% lis)]
+
+# method 3: analyze only years with 10 or more obs but include margin of error +/- 1 year
+lis1 <- lis + 1
+lis2 <- lis - 1
+d$event[which(yr %in% lis1)] <- as.numeric(yr[which(yr %in% lis1)]) - 1
+d$event[which(yr %in% lis2)] <- as.numeric(yr[which(yr %in% lis2)]) + 1
+
+table(d$event, useNA = "always")
+d$Year[which(is.na(d$event))]             # check NAs
+table(d$event, d$Year)                    # check results
 
 ################################################################################
 ###############################    PLOTTING    #################################
 
-# color sheme 
-if (nrank==4)  { cols=c("#FF000099", "#FF000050", "#FF000020", "#FF000005")  } else { 
-  cols=c("#FF000099", "#FF000050", "#FF000005")  } 
+# plot severity over time -------------------------------
+#pdf(file="all_events.pdf", width=8, height=5)
 
-##########################    severity over time    ############################
-pdf(file="all_events.pdf", width=8, height=5)
+# plotting by region instead of county b/c too many counties (produced illegible symbols)
 
 par(mar=c(5,4,2,1))
-plot(d$Year1, d$rat1, col="#FF000030", pch=as.numeric(d$County)+1, cex=2, xlab="year", ylab="event severity rating", axes=F, ylim=c(0.8, 3.2))
-axis(1); axis(2, at=nrank:1, lab=names(table(d$rat))); box()
-legend("left", names(table(d$County))[1:5], pt.cex=2, col="#FF000030", pch=2:6) 
+plot(d$Year, d$rat, col="#FF000050", 
+     pch = as.numeric(d$region)+1, cex = 2, 
+     xlab = "year", ylab = "event severity rating", axes = F, ylim = c(0.8, 3.2))
+axis(1)
+axis(2, at = 1:3, lab = c("minor", "major", "extreme"))
+box()
+legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000060", pch=2:5) 
 #abline(v=c(2003.5, 2005.5, 2013.5, 2014.5, 2017.5, 2019), lty=2, col=8)
 
 dev.off()
 
-##########################   longevity of event   ##############################
-d$tim <- as.numeric(as.character(d$Temporal.Extent))
+# longevity of event -------------------------------------
+d$tim <- as.numeric(as.character(d$Temporal.Extent.Months))  # converts descriptions to NAs - warning OK
+cbind(d$tim, d$Temporal.Extent.Months)                       # check
 
 tapply(d$tim, d$event, mean, na.rm=T)
 tapply(d$tim, d$event, sd, na.rm=T)
 
-pdf(file="temp_extent.pdf", width=8, height=5)
+#pdf(file="temp_extent.pdf", width=8, height=5)
+
+max(d$tim, na.rm=T)                           # max y-axis
+min(d$Year[which(!is.na(d$tim))], na.rm = T)  # min x-axis
 
 par(mar=c(5,4,2,1))
-plot(d$Year1, d$tim, col="#FF000030", pch=as.numeric(d$County)+1, cex=2, xlab="year", ylab="temporal extent of event (months)", axes=F)
+plot(d$Year, d$tim, col = "#FF000070", 
+     pch = as.numeric(d$region)+1, cex = 2, xlim = c(1955, 2020), ylim = c(0, 20), 
+      xlab = "year", ylab = "temporal extent of event (months)", axes = F)
 axis(1); axis(2, las=2); box()
-legend("topleft", names(table(d$County)), pt.cex=2, col="#FF000030", pch=2:6) 
+legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000070", pch=2:5) 
 
 dev.off()
 
 ###########################   recovery after event   ###########################
-d$recov <- as.numeric(as.character(d$Recovery.Time))
-d$Recovery.Time[grep("recover", d$Recovery.Time)]       # check to see that all of these are "still recovering" or "not yet recovered"
-d$recov[grep("recover", d$Recovery.Time)] <- 70
-data.frame(d$Recovery.Time, d$recov)
+d$recov <- as.numeric(as.character(d$Recovery.Time_Months))
 
-pdf(file="recovery.pdf", width=8, height=5)
+d$Recovery.Time_Months[grep("recover", d$Recovery.Time_Months)]   # check to see that all of these are "still recovering" or "not yet recovered"
+d$recov[grep("recover", d$Recovery.Time_Months)] <- 70
+data.frame(d$Recovery.Time_Months, d$recov)                       # check conversion
+
+#pdf(file="recovery.pdf", width=8, height=5)
 
 par(mar=c(5,5,1,1))
-plot(d$Year1, d$recov, col="#FF000030", pch=as.numeric(d$County)+1, cex=2, xlab="year", ylab="recovery time (years)", axes=F)
-axis(1, at=seq(1940, 2020,10)); axis(2, las=2, at=seq(0, 60, 12), lab=0:5)
+plot(d$Year, d$recov, col="#FF000070", 
+     pch = as.numeric(d$region)+1, cex = 2, xlab = "year", ylab = "recovery time (years)         ", 
+     axes=F, ylim=c(0,75))
+axis(1, at=seq(1940, 2020,10))
+axis(2, las=2, at=seq(0, 60, 12), lab=0:5)
 axis(2, at=70, lab="still \nrecovering", las=2)
-legend(1950, 60, names(table(d$County)), pt.cex=2, col="#FF000030", pch=2:6) 
+legend(1937, 60, names(table(d$region)), pt.cex=2, col="#FF000070", pch=2:5) 
 
 dev.off()
 
-###############################    by event    #################################
-tab <- table(d$event, d$rat); tab
-tab <- tab[c(4,1:3),]       ; tab
+# by event -----------------------------------------------
+
+d$SCALE[which(d$SCALE == "Devastating")] <- "Extreme"
+d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Extreme"))
+
+tab <- table(d$event, d$SCALE); tab
 tab1 <- tab / rowSums(tab)
 tab
 tab1
+# labels ---------
+labs <- NA
+st <- substr(rownames(tab), 2, 5)
+en <- substr(rownames(tab), 7, 10)
+l1 <- which((as.numeric(en) - as.numeric(st)) == 10)
+labs[l1] <- paste0(st[l1], "s")
+l2 <- which((as.numeric(en) - as.numeric(st)) != 10)
+labs[l2] <- paste0(as.numeric(st[l2])+1, "-", en[l2])
+l3 <- which((as.numeric(en) - as.numeric(st)) == 1)
+labs[l3] <- paste0(en[l3])
+labs
 
-pdf(file="by_event.pdf", width=6, height=5)
+if (is.na(labs))  { labs <- rownames(tab) }
+labs
+
+cols <- c("#FF000015", "#FF000050", "#FF000095")
+
+#pdf(file="by_event.pdf", width=6, height=5)
 
 par(mar=c(5,4,1,0.5))
-b <- barplot(t(tab1), beside=F, col=cols, ylim=c(0, 1.3), axes=F,  
-args.legend=list(x = "top", horiz=T), legend.text=colnames(tab1), 
-ylab="proportion of ratings                ", xlab="red tide event")
-axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
-text(b, 1.05, paste("n =", rowSums(tab)))
-abline(h=0)
+
+b <- barplot(t(tab1), beside = F, col = cols, ylim = c(0, 1.35), axes = F, 
+    names.arg = labs, las = 1, ylab="proportion of ratings                ",
+    args.legend = list(x = "top", col = cols, horiz = T),
+                legend.text = c("minor", "major", "extreme"))
+mtext(side = 1, line = 3, "red tide event")
+
+tail(table(d$event, d$SCALE))  # check that legend is correct
+
+axis(2, at = seq(0,1, 0.2), lab = seq(0,1, 0.2), las = 2)
+text(b, 1.1, paste0(rowSums(tab)), las=2)
+#text(b, 1.1, paste0("n=", rowSums(tab)), las=2)
+abline(h = 0)
 
 dev.off()
 
-############################    by area   ######################################
+# by area --------------------------------------
 
-tab <- table(d$County, d$rat)
+tab <- table(d$County, d$SCALE)
 tab1 <- tab / rowSums(tab)
 tab
 tab1
 
 chisq.test(tab)
-chisq.test(t(tab))
 chisq.test(tab1)
-chisq.test(t(tab1))
 
-pdf(file="by_area.pdf", width=6, height=5)
+#pdf(file="by_area.pdf", width=6, height=5)
 
 par(mar=c(5,4,1,0.5))
-b <- barplot(t(tab1), beside=F, col=cols, ylim=c(0, 1.3), axes=F,  
-args.legend=list(x = "top", horiz=T), legend.text=colnames(tab1),
-ylab="proportion of ratings                    ", xlab="home county of interviewee")
-axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
-abline(h=0)                                     
+b <- barplot(t(tab1), beside = F, col = cols, ylim = c(0, 1.3), axes = F, 
+             args.legend=list(x = "top", horiz=T), legend.text = colnames(tab),
+             ylab="proportion of ratings                    ", 
+             xlab="home county of interviewee")
+axis(2, at = seq(0,1, 0.2), lab = seq(0,1, 0.2), las = 2)
+abline(h=0)                                      
 text(b, 1.05, paste("n =", rowSums(tab)))
 
 dev.off()
 
-####  by area and event
-tab3 <- table(d$County, d$rat, d$event)
-tab <- rbind(tab3[,,4], rep(NA, 3), rep(NA, 3), tab3[,,1], rep(NA, 3), rep(NA, 3), tab3[,,2], rep(NA, 3), rep(NA, 3), tab3[,,3])
-tab1 <- tab / rowSums(tab)   
-tab
-tab1
+# by area and event --------------------------
+#tab3 <- table(d$County, d$SCALE, d$event)
+#tab <- rbind(tab3[,,4], rep(NA, 3), rep(NA, 3), tab3[,,1], rep(NA, 3), rep(NA, 3), tab3[,,2], rep(NA, 3), rep(NA, 3), tab3[,,3])
+#tab1 <- tab / rowSums(tab)   
+#tab
+#tab1
 
-pdf(file="by_area_and_event.pdf", width=6, height=5)
+#pdf(file="by_area_and_event.pdf", width=6, height=5)
 
-par(mar=c(6, 4, 1, 1))
-b <- barplot(t(tab1), beside=F, col=cols, ylim=c(0, 1.3), axes=F,  
-args.legend=list(x = "top", horiz=T), legend.text=colnames(tab1), las=2,
-ylab="proportion of ratings")
-mtext(side=1, line=5, "home county of interviewee")
-axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
-abline(h=0)                                     
+#par(mar=c(6, 4, 1, 1))
+#b <- barplot(t(tab1), beside=F, col=cols, ylim=c(0, 1.3), axes=F,  
+#args.legend=list(x = "top", horiz=T), legend.text=colnames(tab1), las=2,
+#ylab="proportion of ratings")
+#mtext(side=1, line=5, "home county of interviewee")
+#axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
+#abline(h=0)                                     
 #text(b, 1.05, paste(rowSums(tab)))
-text(b[seq(3, length(b)-2, length.out=4)], 1.05, unique(d$event)[c(1, 2, 4, 3)])
+#text(b[seq(3, length(b)-2, length.out=4)], 1.05, unique(d$event)[c(1, 2, 4, 3)])
       
-dev.off()
+#dev.off()
 
-###############################    by zone   ###################################
+# by zone ---------------------------------
  
 d$zone <- d$Offshore.or.Inshore.
-d$zone[which(d$zone =="none" | d$zone=="neither" | d$zone =="")] <- NA
-d$Offshore.or.Inshore.[which(is.na(d$zone))]
 table(d$Offshore.or.Inshore., d$zone)          # check reclassification
 
-tab <- table(droplevels(d$zone), d$rat)
-#tab <- tab[c(3,4,2,5),]
+tab <- table(d$zone, d$SCALE)
+tab <- tab[c(2, 4, 1),]
 tab1 <- tab / rowSums(tab)           
 tab
 tab1
 
-pdf(file="by_zone.pdf", width=5, height=5)
+#pdf(file="by_zone.pdf", width=5, height=5)
 
 par(mar=c(5,4,1,0.5))
-b <- barplot(t(tab1), beside=F, col=cols, ylim=c(0, 1.3), axes=F,  
-args.legend=list(x = "top", horiz=T), legend.text=colnames(tab1),
-ylab="proportion of ratings", xlab="zone of fishing")
-axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
+b <- barplot(t(tab1), beside = F, col = cols, ylim = c(0, 1.3), axes = F,  
+             args.legend=list(x = "top", horiz=T), legend.text = colnames(tab1), 
+             ylab="proportion of ratings", xlab="zone of fishing")
+axis(2, at = seq(0,1, 0.2), lab = seq(0,1, 0.2), las = 2)
 text(b, 1.05, paste("n =", rowSums(tab)))
 abline(h=0)
     
 dev.off()
 
-##########################    number of interviewees   #########################
+# number of interviewees -----------------------------------
 
-pdf(file="num_interviewees.pdf", width=6, height=4)
+#pdf(file="num_interviewees.pdf", width=6, height=4)
 
-tab <- table(d$event, d$County)
-tab <- t(tab[c(4,1:3),])
+tab <- table(d$region, d$event)
 tab
-par(mar=c(5,4,1,0.5))
-b <- barplot(tab, beside=T, col=2:6, args.legend=list(x=12, y=11, bty="n"), legend.text=rownames(tab), axes=F,
-ylab="number of interviewees", xlab="red tide event")
+par(mar=c(7,4,1,0.5))
+b <- barplot(tab, beside = T, col= 2:5, 
+             args.legend = list(x = "topleft", bty = "n"), names.arg = labs, las = 2,  
+             legend.text = rownames(tab), axes = F,
+             ylab = "number of interviewees", xlab = "")
+
 axis(2, las=2)
 abline(h=0)
          
 dev.off()
 
-############################   species affected   ##############################
-d2 <- d[as.numeric(d$Species.Affected)!=1,]
+# species affected ----------------------------------
+table(d$Species.Affected=="")
+
+d2 <- d[d$Species.Affected != "",]
 d2$grouper <- 0
+
+d2$Species.Affected[grep("grouper", d2$Species.Affected)]
 d2$grouper[grep("grouper", d2$Species.Affected)] <- 1     
 
 d2$Species.Affected[grep("grouper", d2$Species.Affected)]
@@ -293,17 +330,19 @@ d2$Species.Affected[grep("goliath", d2$Species.Affected)]
 d2$Species.Affected[grep("gag", d2$Species.Affected)]
 
 tab <- table(d2$event, d2$grouper)
-tab <- tab[c(4, 1:3),2:1]
 tab1 <- tab/rowSums(tab)
 tab
 tab1
 
-pdf(file="spp_killed.pdf", width=6, height=5)
+#pdf(file="spp_killed.pdf", width=6, height=5)
 
-par(mar=c(5,4,1,0.5))
-b <- barplot(t(tab1), beside=F, col=c(3,4), ylim=c(0, 1.3), axes=F,  
-args.legend=list(x = 5.6, y=1.3, horiz=T, bty="n"), legend.text=c("grouper species             ", "fish species other than grouper"), 
-ylab="proportion of species-specific fish kill mentions                   ", xlab="red tide event")
+par(mar = c(7,4,1,0.5))
+b <- barplot(t(tab1), beside = F, col = c(3,4), 
+             ylim = c(0, 1.3), axes = F, names.arg = labs, las = 2,  
+             args.legend = list(x = "top", horiz = T, bty = "n"), 
+             legend.text = c("fish species other than grouper", "grouper species"), 
+             ylab = "proportion of species-specific fish kill mentions")
+mtext(side = 1, line= 5.5, "red tide event")
 axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
 abline(h=0)
 text(b, 1.05, paste("n =", rowSums(tab)))
