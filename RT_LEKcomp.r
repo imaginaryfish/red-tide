@@ -9,7 +9,7 @@ rm(list=ls())
 setwd("C:/Users/mandy.karnauskas/Desktop/RT_severity")
 
 # import data -------------
-d <- read.table("RT_Summary_Spreadsheet_June2020.csv", header=T, skip=0, sep=",", quote="\"", stringsAsFactors = F) 
+d <- read.table("RT_Summary_Spreadsheet_July_corrected.csv", header=T, skip=0, sep=",", quote="\"", stringsAsFactors = F) 
 
 head(d)
 names(d)
@@ -303,18 +303,19 @@ dev.off()
 
 tab <- table(d$region, d$event)
 tab
-par(mar=c(7,4,1,0.5))
+par(mar=c(3,4,1,0.5))
 b <- barplot(tab, beside = T, col= 2:5, 
-             args.legend = list(x = "topleft", bty = "n"), names.arg = labs, las = 2,  
+             args.legend = list(x = "topleft", bty = "n", title = "home location of interviewee"),
+             names.arg = labs, las = 1,
              legend.text = rownames(tab), axes = F,
-             ylab = "number of interviewees", xlab = "")
+             ylab = "number of interviewees\ndescribing event", xlab = "")
 
 axis(2, las=2)
 abline(h=0)
          
 dev.off()
 
-# species affected ----------------------------------
+# grouper affected ----------------------------------
 table(d$Species.Affected=="")
 
 d2 <- d[d$Species.Affected != "",]
@@ -348,6 +349,156 @@ abline(h=0)
 text(b, 1.05, paste("n =", rowSums(tab)))
 
 dev.off()
+
+# tabulate all species affected -----------------------
+table(d$Species.Affected=="")
+
+d2 <- d[d$Species.Affected != "",]
+dim(d2)
+
+splis <- unlist(strsplit(d2$Species.Affected, ";"))
+
+for (i in 1:length(splis))  { 
+  if (substr(splis[i], 1, 1) == " ") { 
+    splis[i] <- substr(splis[i], 2, (nchar(splis[i])))  }
+  
+  if (substr(splis[i], nchar(splis[i]), nchar(splis[i])) == " ") { 
+    splis[i] <- substr(splis[i], 1, (nchar(splis[i])-1))  }
+}
+
+splis
+table(splis)
+sort(table(splis), decreasing = F)
+head(sort(table(splis), decreasing = T), 94)
+
+spnam <- names(sort(table(splis), decreasing = T)[1:94])
+spnam
+
+rem <- c("fish", "everything", "gag grouper", "bottom fish", "all species", "", "fishes", "reef fish", "silver trout", "thread herring", "goliath grouper", 
+         "trash fish", "a lot of pinfish", "all types of fish", "goliath groupers", "golitath groupers", "mostly red grouper", "no major impacts on fish species", 
+         "none", "small fish mainly", "small fish", "some fish kills on the beach", "threadfin herring", " baitfish")
+
+spnam <- spnam[-which(spnam %in% rem)]
+spnam[which(spnam == "baitfish")] <- "bait"
+
+for (i in 1:length(spnam))  { 
+  if (substr(spnam[i], nchar(spnam[i]), nchar(spnam[i])) == "s") { 
+    spnam[i] <- substr(spnam[i], 1, (nchar(spnam[i])-1))  }
+}
+
+length(spnam)
+spnam <- unique(spnam)
+length(spnam)
+
+add <- c("houndfish", "barracuda", "blennies", "lionfish", "sennet", "sea bream", "mussels", 
+         "manta ray", "mojarra", "octopus", "pilchards", "scamp", "almaco", "oarfish", "seabass", 
+         "cowfish", "conch", "whelk", "barnacles", "permit", "moray", "croaker", "pufferfish", "kingfish",
+         "thread", "sea fan", "gorgonian", "pelican", "sea horse", "hammerhead", "snake fish", "spadefish")
+spnam <- c(spnam, add)
+spnam
+
+spnam <- spnam[order(nchar(spnam))]
+spnam
+
+s1 <- unlist(strsplit(d2$Species.Affected, ";"))
+s1c <- rep(NA, length(s1))
+
+for (j in 1: length(spnam))  { 
+  s1c[grep(spnam[j], s1)] <- spnam[j]
+}
+
+cbind(s1, s1c)
+s1[is.na(s1c)] 
+
+sort(table(s1c))
+
+smin <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Minor")], ";"))
+smaj <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Major")], ";"))
+sext <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Extreme")], ";"))
+spp <- c(smin, smaj, sext)
+rat <- c(rep("minor", length(smin)), rep("major", length(smaj)), rep("extreme", length(sext)))
+
+dat <- data.frame(spp, rat, NA)
+names(dat)[3] <- "label"
+head(dat)
+
+for (j in 1: length(spnam))  { 
+  dat$label[grep(spnam[j], dat$spp)] <- spnam[j]
+}
+
+dat <- dat[!is.na(dat$label),]
+
+sort(table(dat$label))
+
+dat$label[which(dat$label == "porgie")] <- "porgy"
+dat$label[which(dat$label == "bait")] <- "baitfish"
+dat$label[which(dat$label == "\nblue crab")] <- "blue crab"
+dat$label[which(dat$label == "seagras")] <- "seagrass" 
+dat$label[which(dat$label == "pelican")] <- "bird" 
+dat$label[which(dat$label == "seabass")] <- "grouper"
+dat$label[which(dat$label == "porpoise")] <- "dolphin" 
+
+dat$lab2 <- dat$label
+
+jck <- c("almaco", "permit", "pompano")
+mck <- c("kingfish")
+shk <- c("spinner", "whale shark", "hammerhead", "black tip", "blacknose", "nurse shark", "sharpnose")
+ben <- c("barnacles", "clam", "conch", "coral", "gorgonian", "mussels", "sponge", "whelk", "sea fan", "seagrass")
+drm <- c("black drum", "croaker", "whiting", "redfish", "trout", "red drum", "sand trout")
+grt <- c("pigfish", "tomtate")
+eel <- c("moray", "sand eel", "sea snake")
+bt <-  c("thread", "spanish sardine", "needlefish", "pilchards")
+prg <- c("sea bream", "sheepshead")
+ray <- c("manta ray", "skate", "stingray")
+grp <- c("scamp", "gag", "goliath")
+
+dat$lab2[which(dat$label %in% jck)] <- "jack"
+dat$lab2[which(dat$label %in% mck)] <- "mackerel"
+dat$lab2[which(dat$label %in% shk)] <- "shark" 
+dat$lab2[which(dat$label %in% ben)] <- "benthic"
+dat$lab2[which(dat$label %in% drm)] <- "drum" 
+dat$lab2[which(dat$label %in% grt)] <- "grunt" 
+dat$lab2[which(dat$label %in% eel)] <- "eel"
+dat$lab2[which(dat$label %in% bt)] <- "baitfish"
+dat$lab2[which(dat$label %in% prg)] <- "porgy"
+dat$lab2[which(dat$label %in% ray)] <- "rays"
+dat$lab2[which(dat$label %in% grp)] <- "grouper"
+
+dat$lab2[grep("crab", dat$label)] <- "crab"
+dat$lab2[grep("grouper", dat$label)] <- "grouper"
+dat$lab2[grep("snapper", dat$label)] <- "snapper"
+
+table(dat$lab2)
+
+tab <- table(dat$lab2, dat$rat)
+tab <- tab[order(rowSums(tab)),]
+tab <- tail(tab, 20)
+
+cols <- rainbow(20)
+
+#pdf(file="spp_killed.pdf", width=6, height=5)
+
+par(mar = c(4, 4, 1, 0.5))
+b <- barplot(tab, beside = F, col = cols, axes = F, xlim = c(0, 4.5),  
+             args.legend = list(x = "right", horiz = F, bty = "n"), 
+             legend.text = rownames(tab), 
+             ylab = "number of species-specific fish kill mentions")
+axis(2, las=2)
+abline(h=0)
+
+tab1 <- cbind(tab[,1]/colSums(tab)[1], tab[,2]/colSums(tab)[2], tab[,3]/colSums(tab)[3])
+colnames(tab1) <- colnames(tab)
+
+par(mar = c(4, 4, 1, 0.5))
+b <- barplot(tab1, beside = F, col = cols, axes = F, xlim = c(0, 4.5),  
+             args.legend = list(x = "right", horiz = F, bty = "n"), 
+             legend.text = rownames(tab), 
+             ylab = "proportion of species-specific fish kill mentions")
+axis(2, las=2)
+abline(h=0)
+
+dev.off()
+
 
 ##################################    END     ##################################
 ################################################################################
