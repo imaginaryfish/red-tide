@@ -6,7 +6,7 @@
 # todo:   NA
 
 rm(list=ls())
-setwd("C:/Users/mandy.karnauskas/Desktop/RT_severity")
+setwd('~/Desktop/professional/projects/Postdoc_FL/data/lek')
 
 # import data -------------
 d <- read.table("RT_Summary_Spreadsheet_July_corrected.csv", header=T, skip=0, sep=",", quote="\"", stringsAsFactors = F) 
@@ -142,7 +142,7 @@ box()
 legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000060", pch=2:5) 
 #abline(v=c(2003.5, 2005.5, 2013.5, 2014.5, 2017.5, 2019), lty=2, col=8)
 
-dev.off()
+# dev.off()
 
 # longevity of event -------------------------------------
 d$tim <- as.numeric(as.character(d$Temporal.Extent.Months))  # converts descriptions to NAs - warning OK
@@ -163,7 +163,7 @@ plot(d$Year, d$tim, col = "#FF000070",
 axis(1); axis(2, las=2); box()
 legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000070", pch=2:5) 
 
-dev.off()
+# dev.off()
 
 ###########################   recovery after event   ###########################
 d$recov <- as.numeric(as.character(d$Recovery.Time_Months))
@@ -183,7 +183,7 @@ axis(2, las=2, at=seq(0, 60, 12), lab=0:5)
 axis(2, at=70, lab="still \nrecovering", las=2)
 legend(1937, 60, names(table(d$region)), pt.cex=2, col="#FF000070", pch=2:5) 
 
-dev.off()
+# dev.off()
 
 # by event -----------------------------------------------
 
@@ -228,7 +228,7 @@ text(b, 1.1, paste0(rowSums(tab)), las=2)
 #text(b, 1.1, paste0("n=", rowSums(tab)), las=2)
 abline(h = 0)
 
-dev.off()
+# dev.off()
 
 # by area --------------------------------------
 
@@ -251,7 +251,7 @@ axis(2, at = seq(0,1, 0.2), lab = seq(0,1, 0.2), las = 2)
 abline(h=0)                                      
 text(b, 1.05, paste("n =", rowSums(tab)))
 
-dev.off()
+# dev.off()
 
 # by area and event --------------------------
 #tab3 <- table(d$County, d$SCALE, d$event)
@@ -295,7 +295,7 @@ axis(2, at = seq(0,1, 0.2), lab = seq(0,1, 0.2), las = 2)
 text(b, 1.05, paste("n =", rowSums(tab)))
 abline(h=0)
     
-dev.off()
+# dev.off()
 
 # number of interviewees -----------------------------------
 
@@ -313,7 +313,7 @@ b <- barplot(tab, beside = T, col= 2:5,
 axis(2, las=2)
 abline(h=0)
          
-dev.off()
+# dev.off()
 
 # grouper affected ----------------------------------
 table(d$Species.Affected=="")
@@ -348,7 +348,7 @@ axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
 abline(h=0)
 text(b, 1.05, paste("n =", rowSums(tab)))
 
-dev.off()
+# dev.off()
 
 # tabulate all species affected -----------------------
 table(d$Species.Affected=="")
@@ -479,10 +479,14 @@ cols <- rainbow(20)
 #pdf(file="spp_killed.pdf", width=6, height=5)
 
 par(mar = c(4, 4, 1, 0.5))
-b <- barplot(tab, beside = F, col = cols, axes = F, xlim = c(0, 4.5),  
-             args.legend = list(x = "right", horiz = F, bty = "n"), 
-             legend.text = rownames(tab), 
+b <- barplot(tab, beside = F, col = cols, axes = F, xlim = c(0, 4.5),
+             args.legend = list(x = "right", horiz = F, bty = "n"),
+             legend.text = rownames(tab),
              ylab = "number of species-specific fish kill mentions")
+# b <- barplot(tab, beside = T, col = cols, axes = F,  
+             # args.legend = list(x = "right", horiz = F, bty = "n"), 
+             # legend.text = rownames(tab), 
+             # ylab = "number of species-specific fish kill mentions")
 axis(2, las=2)
 abline(h=0)
 
@@ -497,7 +501,7 @@ b <- barplot(tab1, beside = F, col = cols, axes = F, xlim = c(0, 4.5),
 axis(2, las=2)
 abline(h=0)
 
-dev.off()
+# dev.off()
 
 
 ##################################    END     ##################################
