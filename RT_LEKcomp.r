@@ -22,10 +22,11 @@ names(d)
 
 table(d$SEFSC.or.SERO, useNA="always")
 table(d$Interview.Number, useNA="always")
-length(unique(d$Interview.Number))                    # number of interviews == 62
+length(unique(d$Interview.Number)) # number of interviews == 62
 table(d$Interview.ID, useNA="always")
 length(table(d$Interview.ID))
 table(d$Interviewee, useNA="always")
+length(unique(d$Interviewee)) # number of interviewees == 57
 table(d$Date.Of.Interview, useNA="always")    
 # table(d$RT.Event.Period, useNA="always")
 table(d$Year, useNA="always")
@@ -123,6 +124,32 @@ d$event[which(yr %in% lis2)] <- as.numeric(yr[which(yr %in% lis2)]) + 1
 table(d$event, useNA = "always")
 d$Year[which(is.na(d$event))]             # check NAs
 table(d$event, d$Year)                    # check results
+
+# define events -----------------------------------------------
+
+d$SCALE[which(d$SCALE == "Devastating")] <- "Extreme"
+d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Extreme"))
+
+tab <- table(d$event, d$SCALE); tab
+tab1 <- tab / rowSums(tab)
+tab
+tab1
+# labels ---------
+labs <- NA
+st <- substr(rownames(tab), 2, 5)
+en <- substr(rownames(tab), 7, 10)
+l1 <- which((as.numeric(en) - as.numeric(st)) == 10)
+labs[l1] <- paste0(st[l1], "s")
+l2 <- which((as.numeric(en) - as.numeric(st)) != 10)
+labs[l2] <- paste0(as.numeric(st[l2])+1, "-", en[l2])
+l3 <- which((as.numeric(en) - as.numeric(st)) == 1)
+labs[l3] <- paste0(en[l3])
+labs
+
+if (is.na(labs))  { labs <- rownames(tab) }
+labs
+
+cols <- c("#FF000015", "#FF000050", "#FF000095")
 
 ################################################################################
 ###############################    PLOTTING    #################################
