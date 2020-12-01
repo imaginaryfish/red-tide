@@ -386,9 +386,10 @@ dim(d2)
 splis <- unlist(strsplit(d2$Species.Affected, ";"))
 
 for (i in 1:length(splis))  { 
+  ### remove leading space
   if (substr(splis[i], 1, 1) == " ") { 
     splis[i] <- substr(splis[i], 2, (nchar(splis[i])))  }
-  
+  ### remove trailing space
   if (substr(splis[i], nchar(splis[i]), nchar(splis[i])) == " ") { 
     splis[i] <- substr(splis[i], 1, (nchar(splis[i])-1))  }
 }

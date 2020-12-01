@@ -93,15 +93,17 @@ table(d$event, d$Year)                    # check results
 
 
 ### year versus inshore/offshore
-yr_region <- table(d$Year,d$Offshore.or.Inshore.)
+# yr_region <- table(d$Year,d$Offshore.or.Inshore.)
+yr_region <- table(yr,d$Offshore.or.Inshore.)
 yr_region <- yr_region[,c(2,4,1)]
 yr_sum <- apply(yr_region,1,sum,na.rm=T)
 yr_region_ratio <- yr_region/yr_sum
 
 barplot(t(yr_region_ratio),las=2,legend.text = c('inshore','offshore','both'))
 
-yr_region_scale <- table(d$Year,d$Offshore.or.Inshore.,d$SCALE)
-yr_region_scale <- yr_region_scale[,c(2,4,1),2]
+# yr_region_scale <- table(d$Year,d$Offshore.or.Inshore.,d$SCALE)
+yr_region_scale <- table(yr,d$Offshore.or.Inshore.,d$SCALE)
+yr_region_scale <- yr_region_scale[,c(2,4,1),2] ### 1==Devastating, 2==Major, 3==Minor
 yr_sum <- apply(yr_region_scale,1,sum,na.rm=T)
 yr_region_ratio <- yr_region_scale/yr_sum
 barplot(t(yr_region_ratio),las=2,legend.text = c('inshore','offshore','both'))
