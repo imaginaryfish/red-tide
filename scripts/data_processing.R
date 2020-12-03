@@ -115,3 +115,5 @@ data.frame(d$Recovery.Time_Months, d$recov)
 
 d$SCALE[which(d$SCALE == "Devastating")] <- "Extreme"
 d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Extreme"))
+
+write.csv(d, 'lek_processed.csv')

@@ -402,6 +402,7 @@ head(sort(table(splis), decreasing = T), 94)
 spnam <- names(sort(table(splis), decreasing = T)[1:94])
 spnam
 
+### not sure why gag and goliath are being removed
 rem <- c("fish", "everything", "gag grouper", "bottom fish", "all species", "", "fishes", "reef fish", "silver trout", "thread herring", "goliath grouper", 
          "trash fish", "a lot of pinfish", "all types of fish", "goliath groupers", "golitath groupers", "mostly red grouper", "no major impacts on fish species", 
          "none", "small fish mainly", "small fish", "some fish kills on the beach", "threadfin herring", " baitfish")
@@ -418,6 +419,7 @@ length(spnam)
 spnam <- unique(spnam)
 length(spnam)
 
+### not sure why these are being added
 add <- c("houndfish", "barracuda", "blennies", "lionfish", "sennet", "sea bream", "mussels", 
          "manta ray", "mojarra", "octopus", "pilchards", "scamp", "almaco", "oarfish", "seabass", 
          "cowfish", "conch", "whelk", "barnacles", "permit", "moray", "croaker", "pufferfish", "kingfish",
