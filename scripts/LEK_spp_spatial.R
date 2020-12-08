@@ -92,6 +92,10 @@ d$Year[which(is.na(d$event))]             # check NAs
 table(d$event, d$Year)                    # check results
 
 
+
+
+##### new code
+
 ### year versus inshore/offshore
 # yr_region <- table(d$Year,d$Offshore.or.Inshore.)
 yr_region <- table(yr,d$Offshore.or.Inshore.)
@@ -106,4 +110,40 @@ yr_region_scale <- table(yr,d$Offshore.or.Inshore.,d$SCALE)
 yr_region_scale <- yr_region_scale[,c(2,4,1),2] ### 1==Devastating, 2==Major, 3==Minor
 yr_sum <- apply(yr_region_scale,1,sum,na.rm=T)
 yr_region_ratio <- yr_region_scale/yr_sum
-barplot(t(yr_region_ratio),las=2,legend.text = c('inshore','offshore','both'))
+barplot(t(yr_region_ratio),las=2,legend.text = c('inshore','offshore','both'),args.legend = list(bty='n'))
+
+
+region_scale <- table(d$Offshore.or.Inshore.,d$SCALE)
+region_scale <- region_scale[-3,]
+row_sum <- apply(region_scale,1,sum,na.rm=T)
+region_ratio <- region_scale/row_sum
+region_ratio2 <- t(region_scale)/colSums(region_scale)
+
+
+cols <- c("#FF000015", "#FF000050", "#FF000095")
+
+b <- barplot(t(region_ratio),
+             legend.text = c(colnames(region_ratio)),
+             args.legend = list(x='top',horiz=T,bty='n'),
+             col=cols,
+             ylim=c(0,1.2),yaxt='n',las=1)
+axis(2,seq(0,1,.2),las=1)
+text(b, 1.05, paste("n =", rowSums(region_scale)))
+
+
+region_scale <- table(d$Offshore.or.Inshore.,d$event)
+region_scale <- region_scale[-3,-c(1,2)]
+row_sum <- apply(region_scale,1,sum,na.rm=T)
+region_ratio <- region_scale/row_sum
+region_ratio2 <- t(region_scale)/colSums(region_scale)
+
+
+cols <- c("#FF000015", "#FF000050", "#FF000095")
+
+b <- barplot(t(region_ratio2),
+             legend.text = c(colnames(region_ratio2)),
+             args.legend = list(x='top',horiz=T,bty='n'),
+             col=cols,
+             ylim=c(0,1.2),yaxt='n',las=1)
+axis(2,seq(0,1,.2),las=1)
+text(b, 1.05, paste("n =", colSums(region_scale)))

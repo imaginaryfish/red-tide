@@ -348,8 +348,10 @@ table(d$Species.Affected=="")
 d2 <- d[d$Species.Affected != "",]
 d2$grouper <- 0
 
-d2$Species.Affected[grep("grouper", d2$Species.Affected)]
-d2$grouper[grep("grouper", d2$Species.Affected)] <- 1     
+# d2$Species.Affected[grep("grouper", d2$Species.Affected)]
+# d2$grouper[grep("grouper", d2$Species.Affected)] <- 1     
+d2$Species.Affected[grep("[gG+][rRaA+][oOgG+][uU+]?[pP+]?[eE+]?[rR+]?", d2$Species.Affected)]
+d2$grouper[grep("[gG+][rRaA+][oOgG+][uU+]?[pP+]?[eE+]?[rR+]?", d2$Species.Affected)] <- 1     
 
 d2$Species.Affected[grep("grouper", d2$Species.Affected)]
 d2$Species.Affected[grep("black grouper", d2$Species.Affected)]
@@ -358,6 +360,7 @@ d2$Species.Affected[grep("goliath", d2$Species.Affected)]
 d2$Species.Affected[grep("gag", d2$Species.Affected)]
 
 tab <- table(d2$event, d2$grouper)
+tab <- tab[-c(1,2),]
 tab1 <- tab/rowSums(tab)
 tab
 tab1
@@ -366,7 +369,7 @@ tab1
 
 par(mar = c(7,4,1,0.5))
 b <- barplot(t(tab1), beside = F, col = c(3,4), 
-             ylim = c(0, 1.3), axes = F, names.arg = labs, las = 2,  
+             ylim = c(0, 1.3), axes = F, names.arg = rownames(tab), las = 1,  
              args.legend = list(x = "top", horiz = T, bty = "n"), 
              legend.text = c("fish species other than grouper", "grouper species"), 
              ylab = "proportion of species-specific fish kill mentions")
@@ -376,6 +379,25 @@ abline(h=0)
 text(b, 1.05, paste("n =", rowSums(tab)))
 
 # dev.off()
+
+
+tab <- table(d2$SCALE, d2$grouper)
+tab1 <- tab/rowSums(tab)
+tab
+tab1
+
+#pdf(file="spp_killed.pdf", width=6, height=5)
+
+par(mar = c(7,4,1,0.5))
+b <- barplot(t(tab1), beside = F, col = c(3,4), 
+             ylim = c(0, 1.3), axes = F, names.arg = rownames(tab), las = 1,  
+             args.legend = list(x = "top", horiz = T, bty = "n"), 
+             legend.text = c("fish species other than grouper", "grouper species"), 
+             ylab = "proportion of species-specific fish kill mentions")
+# mtext(side = 1, line= 5.5, "red tide event")
+axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
+# abline(h=0)
+text(b, 1.05, paste("n =", rowSums(tab)))
 
 # tabulate all species affected -----------------------
 table(d$Species.Affected=="")
