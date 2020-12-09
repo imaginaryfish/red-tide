@@ -380,7 +380,6 @@ tab <- table(d$County,d$event)
 tab <- tab[c(1,8,6,5,7,4,3),3:5]
 tab1 <- t(tab)/colSums(tab)
 
-
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
 
 write.csv(tab,'event_county.csv')
@@ -394,6 +393,26 @@ b <- barplot(t(tab1),
              ylab = "Proportion of county affected mentions",
              ylim=c(0,1.2),yaxt='n',las=1)
 mtext(side = 1, line= 2.5, "Red tide event")
+axis(2,seq(0,1,.2),las=1)
+text(b, 1.05, paste("n =", colSums(tab)))
+dev.off()
+
+
+tab <- table(d$County,d$event)
+tab <- tab[c(1,8,6,5,7,4,3),3:5]
+tab1 <- tab/rowSums(tab)
+
+write.csv(tab,'event_county2.csv')
+
+png('event_county2.png',width=7,height=6,units='in',res=300)
+par(mar = c(5,4,1,1))
+b <- barplot(t(tab1),
+             legend.text = c(colnames(tab)),
+             args.legend = list(x='top',horiz=T,bty='n'),
+             col=c('green4','gray70','darkorange2'),
+             ylab = "Proportion of event mentions",
+             ylim=c(0,1.2),yaxt='n',las=1)
+mtext(side = 1, line= 2.5, "County")
 axis(2,seq(0,1,.2),las=1)
 text(b, 1.05, paste("n =", colSums(tab)))
 dev.off()
