@@ -191,15 +191,19 @@ tab <- tab[order(rowSums(tab)),]
 tab <- tail(tab, 20)
 sort(rownames(tab))
 
+setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
+write.csv(tab,'spp_killed.csv')
+
 cols <- rainbow(20)
-cols <- colorRampPalette(c('red','orangered','gold','chartreuse','deepskyblue','purple',1))
-cols <- cols(20)
-col1 <- colorRampPalette(c('dodgerblue3','orangered'))
-col2 <- colorRampPalette(c('green2','purple3'))
-cols <- c(col1(10),col2(10))
-cols <- rep(NA,20)
-cols[seq(1,20,2)] <- col1(10)
-cols[seq(2,20,2)] <- col2(10)
+cols <- colorRampPalette(c('orangered','gold','chartreuse','deepskyblue','purple'))
+cols <- colorRampPalette(c('slateblue3','dodgerblue2','chartreuse','gold','orangered','gray40'))
+cols <- rev(cols(20))
+# col1 <- colorRampPalette(c('dodgerblue3','orangered'))
+# col2 <- colorRampPalette(c('green2','purple3'))
+# cols <- c(col1(10),col2(10))
+# cols <- rep(NA,20)
+# cols[seq(1,20,2)] <- col1(10)
+# cols[seq(2,20,2)] <- col2(10)
 
 
 #pdf(file="spp_killed.pdf", width=6, height=5)
@@ -220,15 +224,17 @@ abline(h=0)
 tab1 <- t(t(tab)/colSums(tab))
 colnames(tab1) <- colnames(tab)
 
+setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
+png('spp_killed.png',width=7,height=6,units='in',res=300)
 par(mar = c(4, 4, 1, 0.5))
-b <- barplot(tab1, beside = F, col = cols, axes = F, xlim = c(0, 4.5),  
+b <- barplot(tab1, beside = F, col = cols, axes = F, xlim = c(0, 4.5),ylim=c(0,1.1),
              args.legend = list(x = "right", horiz = F, bty = "n"), 
              legend.text = rownames(tab), 
-             ylab = "proportion of species-specific fish kill mentions")
+             ylab = "Proportion of species-specific fish kill mentions")
+mtext(side = 1, line= 2.5, "Severity")
 axis(2, las=2)
-abline(h=0)
-
-# dev.off()
+text(b, 1.05, paste("n =", colSums(tab)))
+dev.off()
 
 
 # inshore/offshore ----------------------------------
@@ -260,15 +266,33 @@ region_ratio <- region_scale/row_sum
 region_ratio2 <- t(region_scale)/colSums(region_scale)
 
 
-cols <- c("#FF000015", "#FF000050", "#FF000095")
+# cols <- c("#FF000015", "#FF000050", "#FF000095")
+cols <- colorRampPalette(c('darkseagreen1','deepskyblue4'))
+cols <- cols(3)
 
-b <- barplot(t(region_ratio),
-             legend.text = c(colnames(region_ratio)),
+setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
+png('scale_region.png',width=7,height=6,units='in',res=300)
+par(mar = c(5,4,1,1))
+b <- barplot(t(region_ratio2),
+             legend.text = c(rownames(region_ratio)),
              args.legend = list(x='top',horiz=T,bty='n'),
              col=cols,
+             ylab = "Proportion of area affected mentions",
              ylim=c(0,1.2),yaxt='n',las=1)
+mtext(side = 1, line= 2.5, "Severity")
 axis(2,seq(0,1,.2),las=1)
-text(b, 1.05, paste("n =", rowSums(region_scale)))
+text(b, 1.05, paste("n =", colSums(region_scale)))
+dev.off()
+
+### alternate figure
+# b <- barplot(t(region_ratio),
+#              legend.text = c(colnames(region_ratio)),
+#              args.legend = list(x='top',horiz=T,bty='n'),
+#              col=cols,
+#              ylim=c(0,1.2),yaxt='n',las=1)
+# axis(2,seq(0,1,.2),las=1)
+# text(b, 1.05, paste("n =", rowSums(region_scale)))
+
 
 
 region_scale <- table(d$Offshore.or.Inshore.,d$event)
@@ -278,15 +302,22 @@ region_ratio <- region_scale/row_sum
 region_ratio2 <- t(region_scale)/colSums(region_scale)
 
 
-cols <- c("#FF000015", "#FF000050", "#FF000095")
+# cols <- c("#FF000015", "#FF000050", "#FF000095")
+cols <- colorRampPalette(c('darkseagreen1','deepskyblue4'))
+cols <- cols(3)
 
+setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
+png('event_region.png',width=7,height=6,units='in',res=300)
+par(mar = c(5,4,1,1))
 b <- barplot(t(region_ratio2),
              legend.text = c(colnames(region_ratio2)),
              args.legend = list(x='top',horiz=T,bty='n'),
              col=cols,
+             ylab = "Proportion of area affected mentions",
              ylim=c(0,1.2),yaxt='n',las=1)
+mtext(side = 1, line= 2.5, "Red tide event")
 axis(2,seq(0,1,.2),las=1)
 text(b, 1.05, paste("n =", colSums(region_scale)))
-
+dev.off()
 
 
