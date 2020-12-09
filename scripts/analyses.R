@@ -342,3 +342,73 @@ text(b, 1.05, paste("n =", colSums(region_scale)))
 dev.off()
 
 
+# region ----------------------------------
+
+# tab <- table(d$region,d$SCALE)
+# tab <- tab[c(2,1,4,3),3:5]
+# tab1 <- t(tab)/colSums(tab)
+# 
+# par(mar = c(5,4,1,1))
+# b <- barplot(t(tab1),
+#              legend.text = c(row.names(tab)),
+#              args.legend = list(x='top',horiz=T,bty='n'),
+#              col=cols,
+#              ylab = "Proportion of area affected mentions",
+#              ylim=c(0,1.2),yaxt='n',las=1)
+# mtext(side = 1, line= 2.5, "Red tide event")
+# axis(2,seq(0,1,.2),las=1)
+# text(b, 1.05, paste("n =", colSums(tab)))
+
+
+# tab <- table(d$region,d$event)
+# tab <- tab[c(2,1,4,3),3:5]
+# tab1 <- t(tab)/colSums(tab)
+# 
+# par(mar = c(5,4,1,1))
+# b <- barplot(t(tab1),
+#              legend.text = c(row.names(tab)),
+#              args.legend = list(x='top',horiz=T,bty='n'),
+#              col=cols,
+#              ylab = "Proportion of area affected mentions",
+#              ylim=c(0,1.2),yaxt='n',las=1)
+# mtext(side = 1, line= 2.5, "Red tide event")
+# axis(2,seq(0,1,.2),las=1)
+# text(b, 1.05, paste("n =", colSums(tab)))
+
+
+tab <- table(d$County,d$event)
+tab <- tab[c(1,8,6,5,7,4,3),3:5]
+tab1 <- t(tab)/colSums(tab)
+
+
+setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
+
+write.csv(tab,'event_county.csv')
+
+png('event_county.png',width=7,height=6,units='in',res=300)
+par(mar = c(5,4,1,1))
+b <- barplot(t(tab1),
+             legend.text = c(row.names(tab)),
+             args.legend = list(x='right',horiz=F,bty='n'),
+             col=cols,xlim=c(0,4.5),
+             ylab = "Proportion of county affected mentions",
+             ylim=c(0,1.2),yaxt='n',las=1)
+mtext(side = 1, line= 2.5, "Red tide event")
+axis(2,seq(0,1,.2),las=1)
+text(b, 1.05, paste("n =", colSums(tab)))
+dev.off()
+
+# tab <- table(d$County,d$SCALE)
+# tab <- tab[c(1,8,6,5,7,4,3),]
+# tab1 <- t(tab)/colSums(tab)
+# 
+# par(mar = c(5,4,1,1))
+# b <- barplot(t(tab1),
+#              legend.text = c(row.names(tab)),
+#              args.legend = list(x='right',horiz=F,bty='n'),
+#              col=cols,xlim=c(0,4.5),
+#              ylab = "Proportion of area affected mentions",
+#              ylim=c(0,1.2),yaxt='n',las=1)
+# mtext(side = 1, line= 2.5, "Red tide event")
+# axis(2,seq(0,1,.2),las=1)
+# text(b, 1.05, paste("n =", colSums(tab)))
