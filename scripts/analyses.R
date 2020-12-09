@@ -16,11 +16,6 @@ d2$grouper <- 0
 d2$Species.Affected[grep("[gG+][rRaA+][oOgG+][uU+]?[pP+]?[eE+]?[rR+]?", d2$Species.Affected)]
 d2$grouper[grep("[gG+][rRaA+][oOgG+][uU+]?[pP+]?[eE+]?[rR+]?", d2$Species.Affected)] <- 1     
 
-d2$Species.Affected[grep("grouper", d2$Species.Affected)]
-d2$Species.Affected[grep("black grouper", d2$Species.Affected)]
-d2$Species.Affected[grep("red grouper", d2$Species.Affected)]
-d2$Species.Affected[grep("goliath", d2$Species.Affected)]
-d2$Species.Affected[grep("gag", d2$Species.Affected)]
 
 tab <- table(d2$event, d2$grouper)
 tab <- tab[-c(1,2),]
@@ -45,8 +40,6 @@ dev.off()
 
 tab <- table(d2$SCALE, d2$grouper)
 tab1 <- tab/rowSums(tab)
-tab
-tab1
 
 
 png('scale_spp_killed.png',width=7,height=6,units='in',res=300)
@@ -128,13 +121,32 @@ s1[is.na(s1c)]
 
 sort(table(s1c))
 
+
+### by severity
 smin <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Minor")], ";"))
 smaj <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Major")], ";"))
 sext <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Extreme")], ";"))
 spp <- c(smin, smaj, sext)
 rat <- c(rep("minor", length(smin)), rep("major", length(smaj)), rep("extreme", length(sext)))
-
 dat <- data.frame(spp, rat, NA)
+
+### by event
+s05 <- unlist(strsplit(d2$Species.Affected[which(d2$event == 2005)], ";"))
+s14 <- unlist(strsplit(d2$Species.Affected[which(d2$event == 2014)], ";"))
+s18 <- unlist(strsplit(d2$Species.Affected[which(d2$event == 2018)], ";"))
+spp <- c(s05, s14, s18)
+evnt <- c(rep(2005, length(s05)), rep(2014, length(s14)), rep(2018, length(s18)))
+dat <- data.frame(spp, evnt, NA)
+
+### by event
+soff <- unlist(strsplit(d2$Species.Affected[which(d2$Offshore.or.Inshore. == 'offshore')], ";"))
+sin <- unlist(strsplit(d2$Species.Affected[which(d2$Offshore.or.Inshore. == 'inshore')], ";"))
+sboth <- unlist(strsplit(d2$Species.Affected[which(d2$Offshore.or.Inshore. == 'both')], ";"))
+spp <- c(soff, sin, sboth)
+area <- c(rep('offshore', length(soff)), rep('inshore', length(sin)), rep('both', length(sboth)))
+dat <- data.frame(spp, area, NA)
+
+
 names(dat)[3] <- "label"
 head(dat)
 
@@ -187,12 +199,17 @@ dat$lab2[grep("snapper", dat$label)] <- "snapper"
 table(dat$lab2)
 
 tab <- table(dat$lab2, dat$rat)
+tab <- table(dat$lab2, dat$evnt)
+tab <- table(dat$lab2, dat$area)
+
 tab <- tab[order(rowSums(tab)),]
 tab <- tail(tab, 20)
 sort(rownames(tab))
 
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
-write.csv(tab,'spp_killed.csv')
+write.csv(tab,'spp_killed_evnt.csv')
+write.csv(tab,'spp_killed_scale.csv')
+write.csv(tab,'spp_killed_area.csv')
 
 cols <- rainbow(20)
 cols <- colorRampPalette(c('orangered','gold','chartreuse','deepskyblue','purple'))
@@ -225,13 +242,17 @@ tab1 <- t(t(tab)/colSums(tab))
 colnames(tab1) <- colnames(tab)
 
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
-png('spp_killed.png',width=7,height=6,units='in',res=300)
+png('spp_killed_scale.png',width=7,height=6,units='in',res=300)
+png('spp_killed_evnt.png',width=7,height=6,units='in',res=300)
+png('spp_killed_area.png',width=7,height=6,units='in',res=300)
 par(mar = c(4, 4, 1, 0.5))
 b <- barplot(tab1, beside = F, col = cols, axes = F, xlim = c(0, 4.5),ylim=c(0,1.1),
              args.legend = list(x = "right", horiz = F, bty = "n"), 
              legend.text = rownames(tab), 
              ylab = "Proportion of species-specific fish kill mentions")
-mtext(side = 1, line= 2.5, "Severity")
+# mtext(side = 1, line= 2.5, "Severity")
+# mtext(side = 1, line= 2.5, "Red Tide event")
+mtext(side = 1, line= 2.5, "Region")
 axis(2, las=2)
 text(b, 1.05, paste("n =", colSums(tab)))
 dev.off()
