@@ -122,13 +122,13 @@ s1[is.na(s1c)]
 sort(table(s1c))
 
 
-### by severity
-smin <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Minor")], ";"))
-smaj <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Major")], ";"))
-sext <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Extreme")], ";"))
-spp <- c(smin, smaj, sext)
-rat <- c(rep("minor", length(smin)), rep("major", length(smaj)), rep("extreme", length(sext)))
-dat <- data.frame(spp, rat, NA)
+# ### by severity
+# smin <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Minor")], ";"))
+# smaj <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Major")], ";"))
+# sext <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Extreme")], ";"))
+# spp <- c(smin, smaj, sext)
+# rat <- c(rep("minor", length(smin)), rep("major", length(smaj)), rep("extreme", length(sext)))
+# dat <- data.frame(spp, rat, NA)
 
 ### by event
 s05 <- unlist(strsplit(d2$Species.Affected[which(d2$event == 2005)], ";"))
@@ -138,13 +138,13 @@ spp <- c(s05, s14, s18)
 evnt <- c(rep(2005, length(s05)), rep(2014, length(s14)), rep(2018, length(s18)))
 dat <- data.frame(spp, evnt, NA)
 
-### by event
-soff <- unlist(strsplit(d2$Species.Affected[which(d2$Offshore.or.Inshore. == 'offshore')], ";"))
-sin <- unlist(strsplit(d2$Species.Affected[which(d2$Offshore.or.Inshore. == 'inshore')], ";"))
-sboth <- unlist(strsplit(d2$Species.Affected[which(d2$Offshore.or.Inshore. == 'both')], ";"))
-spp <- c(soff, sin, sboth)
-area <- c(rep('offshore', length(soff)), rep('inshore', length(sin)), rep('both', length(sboth)))
-dat <- data.frame(spp, area, NA)
+# ### by area
+# soff <- unlist(strsplit(d2$Species.Affected[which(d2$Offshore.or.Inshore. == 'offshore')], ";"))
+# sin <- unlist(strsplit(d2$Species.Affected[which(d2$Offshore.or.Inshore. == 'inshore')], ";"))
+# sboth <- unlist(strsplit(d2$Species.Affected[which(d2$Offshore.or.Inshore. == 'both')], ";"))
+# spp <- c(soff, sin, sboth)
+# area <- c(rep('offshore', length(soff)), rep('inshore', length(sin)), rep('both', length(sboth)))
+# dat <- data.frame(spp, area, NA)
 
 
 names(dat)[3] <- "label"
@@ -198,20 +198,20 @@ dat$lab2[grep("snapper", dat$label)] <- "snapper"
 
 table(dat$lab2)
 
-tab <- table(dat$lab2, dat$rat)
+# tab <- table(dat$lab2, dat$rat)
 tab <- table(dat$lab2, dat$evnt)
-tab <- table(dat$lab2, dat$area)
+# tab <- table(dat$lab2, dat$area)
+
 
 tab <- tab[order(rowSums(tab)),]
-tab <- tail(tab, 20)
-sort(rownames(tab))
-
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
 write.csv(tab,'spp_killed_evnt.csv')
-write.csv(tab,'spp_killed_scale.csv')
-write.csv(tab,'spp_killed_area.csv')
+# write.csv(tab,'spp_killed_scale.csv')
+# write.csv(tab,'spp_killed_area.csv')
 
-cols <- rainbow(20)
+tab <- tail(tab, 20)
+
+# cols <- rainbow(20)
 cols <- colorRampPalette(c('orangered','gold','chartreuse','deepskyblue','purple'))
 cols <- colorRampPalette(c('slateblue3','dodgerblue2','chartreuse','gold','orangered','gray40'))
 cols <- rev(cols(20))
@@ -242,20 +242,22 @@ tab1 <- t(t(tab)/colSums(tab))
 colnames(tab1) <- colnames(tab)
 
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
-png('spp_killed_scale.png',width=7,height=6,units='in',res=300)
+# png('spp_killed_scale.png',width=7,height=6,units='in',res=300)
 png('spp_killed_evnt.png',width=7,height=6,units='in',res=300)
-png('spp_killed_area.png',width=7,height=6,units='in',res=300)
+# png('spp_killed_area.png',width=7,height=6,units='in',res=300)
 par(mar = c(4, 4, 1, 0.5))
 b <- barplot(tab1, beside = F, col = cols, axes = F, xlim = c(0, 4.5),ylim=c(0,1.1),
              args.legend = list(x = "right", horiz = F, bty = "n"), 
              legend.text = rownames(tab), 
              ylab = "Proportion of species-specific fish kill mentions")
 # mtext(side = 1, line= 2.5, "Severity")
-# mtext(side = 1, line= 2.5, "Red Tide event")
-mtext(side = 1, line= 2.5, "Region")
+mtext(side = 1, line= 2.5, "Red tide event")
+# mtext(side = 1, line= 2.5, "Region")
 axis(2, las=2)
 text(b, 1.05, paste("n =", colSums(tab)))
 dev.off()
+
+
 
 
 # inshore/offshore ----------------------------------
@@ -331,8 +333,9 @@ setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
 png('event_region.png',width=7,height=6,units='in',res=300)
 par(mar = c(5,4,1,1))
 b <- barplot(t(region_ratio2),
-             legend.text = c(colnames(region_ratio2)),
+             # legend.text = c(colnames(region_ratio2)),
              args.legend = list(x='top',horiz=T,bty='n'),
+             legend.text = c("Both", "Inshore","Offshore"),
              col=cols,
              ylab = "Proportion of area affected mentions",
              ylim=c(0,1.2),yaxt='n',las=1)
@@ -384,7 +387,7 @@ setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
 
 write.csv(tab,'event_county.csv')
 
-png('event_county.png',width=7,height=6,units='in',res=300)
+# png('event_county.png',width=7,height=6,units='in',res=300)
 par(mar = c(5,4,1,1))
 b <- barplot(t(tab1),
              legend.text = c(row.names(tab)),
@@ -395,20 +398,22 @@ b <- barplot(t(tab1),
 mtext(side = 1, line= 2.5, "Red tide event")
 axis(2,seq(0,1,.2),las=1)
 text(b, 1.05, paste("n =", colSums(tab)))
-dev.off()
+# dev.off()
 
 
 tab <- table(d$County,d$event)
 tab <- tab[c(1,8,6,5,7,4,3),3:5]
 tab1 <- tab/rowSums(tab)
+tab1 <- tab1[,ncol(tab1):1]
 
 write.csv(tab,'event_county2.csv')
 
-png('event_county2.png',width=7,height=6,units='in',res=300)
+png('event_county.png',width=7,height=6,units='in',res=300)
 par(mar = c(5,4,1,1))
 b <- barplot(t(tab1),
-             legend.text = c(colnames(tab)),
+             legend.text = c(colnames(tab1)),
              args.legend = list(x='top',horiz=T,bty='n'),
+             # col = c('darkorange2','gray70','green4'),
              col=c('green4','gray70','darkorange2'),
              ylab = "Proportion of event mentions",
              ylim=c(0,1.2),yaxt='n',las=1)

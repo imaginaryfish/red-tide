@@ -171,6 +171,19 @@ legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000060", pch=2:5)
 
 # dev.off()
 
+ind <- which(d$Year>1999)
+setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
+png('year_severity.png',width=10,height=6,units='in',res=300)
+par(mar=c(5,4,2,1))
+plot(d$Year, d$rat, col="#FF000075", 
+     pch = as.numeric(d$region)+1, cex = 2, 
+     xlab = "Year", ylab = "Event severity rating", axes = F, ylim = c(0.8, 3.5),xlim=c(2000,2019))
+axis(1,seq(2000,2019,2))
+axis(2, at = 1:3, lab = c("Minor", "Major", "Extreme"))
+box()
+legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000090", pch=2:5,horiz=F,pt.lwd=1.25) 
+dev.off()
+
 # longevity of event -------------------------------------
 d$tim <- as.numeric(as.character(d$Temporal.Extent.Months))  # converts descriptions to NAs - warning OK
 cbind(d$tim, d$Temporal.Extent.Months)                       # check
@@ -183,14 +196,16 @@ tapply(d$tim, d$event, sd, na.rm=T)
 max(d$tim, na.rm=T)                           # max y-axis
 min(d$Year[which(!is.na(d$tim))], na.rm = T)  # min x-axis
 
+png('temp_extent.png',width=10,height=6,units='in',res=300)
 par(mar=c(5,4,2,1))
-plot(d$Year, d$tim, col = "#FF000070", 
-     pch = as.numeric(d$region)+1, cex = 2, xlim = c(1955, 2020), ylim = c(0, 20), 
-      xlab = "year", ylab = "temporal extent of event (months)", axes = F)
-axis(1); axis(2, las=2); box()
-legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000070", pch=2:5) 
-
-# dev.off()
+plot(d$Year, d$tim, col = "#FF000075", 
+     pch = as.numeric(d$region)+1, cex = 2, xlim = c(2000, 2019), ylim = c(0, 20), 
+      xlab = "Year", ylab = "Temporal extent of event (months)", axes = F)
+axis(1,seq(2000,2019,2))
+axis(2, las=2)
+box()
+legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000090", pch=2:5) 
+dev.off()
 
 ###########################   recovery after event   ###########################
 d$recov <- as.numeric(as.character(d$Recovery.Time_Months))
@@ -200,62 +215,56 @@ d$recov[grep("recover", d$Recovery.Time_Months)] <- 70
 data.frame(d$Recovery.Time_Months, d$recov)                       # check conversion
 
 #pdf(file="recovery.pdf", width=8, height=5)
-
+png('recovery.png',width=10,height=6,units='in',res=300)
 par(mar=c(5,5,1,1))
-plot(d$Year, d$recov, col="#FF000070", 
-     pch = as.numeric(d$region)+1, cex = 2, xlab = "year", ylab = "recovery time (years)         ", 
-     axes=F, ylim=c(0,75))
-axis(1, at=seq(1940, 2020,10))
+plot(d$Year, d$recov, col="#FF000075", 
+     pch = as.numeric(d$region)+1, cex = 2, xlab = "year", ylab = "Recovery time (years)", 
+     axes=F, ylim=c(0,75),xlim=c(2000,2019))
+axis(1, at=seq(2000, 2019,2))
 axis(2, las=2, at=seq(0, 60, 12), lab=0:5)
 axis(2, at=70, lab="still \nrecovering", las=2)
-legend(1937, 60, names(table(d$region)), pt.cex=2, col="#FF000070", pch=2:5) 
-
-# dev.off()
+legend(2000, 60, names(table(d$region)), pt.cex=2, col="#FF000070", pch=2:5) 
+dev.off()
 
 # by event -----------------------------------------------
 
 d$SCALE[which(d$SCALE == "Devastating")] <- "Extreme"
 d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Extreme"))
 
-tab <- table(d$event, d$SCALE); tab
+tab <- table(d$event, d$SCALE)
+tab <- tab[-(1:2),]
 tab1 <- tab / rowSums(tab)
-tab
-tab1
-# labels ---------
-labs <- NA
-st <- substr(rownames(tab), 2, 5)
-en <- substr(rownames(tab), 7, 10)
-l1 <- which((as.numeric(en) - as.numeric(st)) == 10)
-labs[l1] <- paste0(st[l1], "s")
-l2 <- which((as.numeric(en) - as.numeric(st)) != 10)
-labs[l2] <- paste0(as.numeric(st[l2])+1, "-", en[l2])
-l3 <- which((as.numeric(en) - as.numeric(st)) == 1)
-labs[l3] <- paste0(en[l3])
-labs
-
-if (is.na(labs))  { labs <- rownames(tab) }
-labs
+# # labels ---------
+# labs <- NA
+# st <- substr(rownames(tab), 2, 5)
+# en <- substr(rownames(tab), 7, 10)
+# l1 <- which((as.numeric(en) - as.numeric(st)) == 10)
+# labs[l1] <- paste0(st[l1], "s")
+# l2 <- which((as.numeric(en) - as.numeric(st)) != 10)
+# labs[l2] <- paste0(as.numeric(st[l2])+1, "-", en[l2])
+# l3 <- which((as.numeric(en) - as.numeric(st)) == 1)
+# labs[l3] <- paste0(en[l3])
+# labs
+# 
+# if (is.na(labs))  { labs <- rownames(tab) }
+# labs
 
 cols <- c("#FF000015", "#FF000050", "#FF000095")
 
 #pdf(file="by_event.pdf", width=6, height=5)
-
-par(mar=c(5,4,1,0.5))
-
-b <- barplot(t(tab1), beside = F, col = cols, ylim = c(0, 1.35), axes = F, 
-    names.arg = labs, las = 1, ylab="proportion of ratings                ",
-    args.legend = list(x = "top", col = cols, horiz = T),
-                legend.text = c("minor", "major", "extreme"))
-mtext(side = 1, line = 3, "red tide event")
-
-tail(table(d$event, d$SCALE))  # check that legend is correct
-
+png('event_severity.png',width=7,height=6,units='in',res=300)
+par(mar = c(5,4,1,1))
+b <- barplot(t(tab1), beside = F, col = cols, ylim = c(0, 1.2), axes = F, 
+    names.arg = row.names(tab1), las = 1, ylab="Proportion of ratings",
+    args.legend = list(x = "top", col = cols, horiz = T,bty='n'),
+                legend.text = c("Minor", "Major", "Extreme"))
+mtext(side = 1, line = 2.5, "Red tide event")
+# tail(table(d$event, d$SCALE))  # check that legend is correct
 axis(2, at = seq(0,1, 0.2), lab = seq(0,1, 0.2), las = 2)
-text(b, 1.1, paste0(rowSums(tab)), las=2)
-#text(b, 1.1, paste0("n=", rowSums(tab)), las=2)
-abline(h = 0)
-
-# dev.off()
+# text(b, 1.1, paste0(rowSums(tab)), las=2)
+text(b, 1.05, paste0("n=", rowSums(tab)), las=2)
+# abline(h = 0)
+dev.off()
 
 # by area --------------------------------------
 
@@ -283,22 +292,22 @@ text(b, 1.05, paste("n =", rowSums(tab)))
 # by area and event --------------------------
 #tab3 <- table(d$County, d$SCALE, d$event)
 #tab <- rbind(tab3[,,4], rep(NA, 3), rep(NA, 3), tab3[,,1], rep(NA, 3), rep(NA, 3), tab3[,,2], rep(NA, 3), rep(NA, 3), tab3[,,3])
-#tab1 <- tab / rowSums(tab)   
+#tab1 <- tab / rowSums(tab)
 #tab
 #tab1
 
 #pdf(file="by_area_and_event.pdf", width=6, height=5)
 
 #par(mar=c(6, 4, 1, 1))
-#b <- barplot(t(tab1), beside=F, col=cols, ylim=c(0, 1.3), axes=F,  
+#b <- barplot(t(tab1), beside=F, col=cols, ylim=c(0, 1.3), axes=F,
 #args.legend=list(x = "top", horiz=T), legend.text=colnames(tab1), las=2,
 #ylab="proportion of ratings")
 #mtext(side=1, line=5, "home county of interviewee")
 #axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
-#abline(h=0)                                     
+#abline(h=0)
 #text(b, 1.05, paste(rowSums(tab)))
 #text(b[seq(3, length(b)-2, length.out=4)], 1.05, unique(d$event)[c(1, 2, 4, 3)])
-      
+
 #dev.off()
 
 # by zone ---------------------------------
