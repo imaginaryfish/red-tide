@@ -436,3 +436,50 @@ dev.off()
 # mtext(side = 1, line= 2.5, "Red tide event")
 # axis(2,seq(0,1,.2),las=1)
 # text(b, 1.05, paste("n =", colSums(tab)))
+
+
+
+# region vs inshore/offshore  ----------------------------------
+
+tab <- table(d$County,d$Offshore.or.Inshore.)
+tab <- tab[c(1,8,6,5,7,4,3),-3]
+tab1 <- tab/rowSums(tab)
+
+cols <- colorRampPalette(c('darkseagreen1','deepskyblue4'))
+cols <- cols(3)
+
+barplot(t(tab1),col=cols)
+
+setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
+png('county_region.png',width=7,height=6,units='in',res=300)
+par(mar = c(5,4,1,1))
+b <- barplot(t(tab1),
+             # legend.text = c(colnames(region_ratio2)),
+             args.legend = list(x='top',horiz=T,bty='n'),
+             legend.text = c("Both", "Inshore","Offshore"),
+             col=cols,
+             ylab = "Proportion of area affected mentions",
+             ylim=c(0,1.2),yaxt='n',las=1)
+mtext(side = 1, line= 2.5, "County")
+axis(2,seq(0,1,.2),las=1)
+text(b, 1.05, paste("n =", rowSums(tab)))
+dev.off()
+
+
+library(rgdal)
+
+setwd('~/Desktop/professional/biblioteca/data/shapefiles/cb_2019_us_county_500k')
+
+shpfile <- 'cb_2019_us_county_500k.shp'
+
+shp <- readOGR(shpfile)
+
+plot(shp)
+
+sort(unique(shp$STATEFP))
+x <- subset(shp,STATEFP=='12')
+plot(x)
+
+y <- subset(x,is.element(x$NAME,rownames(tab)))
+plot(x)
+plot(y,add=T,col=2)
