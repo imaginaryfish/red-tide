@@ -26,16 +26,19 @@ for(i in 1:nrow(tab)){
 }
 cbind(ind,tab)
 
-cols <- colorRampPalette(c('chartreuse2','gray80','purple'))
-cols <- colorRampPalette(c('gray90','dodgerblue4'))
+# cols <- colorRampPalette(c('chartreuse2','gray80','purple'))
+# cols <- colorRampPalette(c('gray95','royalblue4'))
+cols <- colorRampPalette(c('gray95','blue4'))
 cols <- cols(51)
 
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
 png('counties.png',width=5,height=6,units='in',res=300)
 plot(fl)
 # plot(locs,add=T,col=2)
-plot(locs[rank(ind)],add=T,col=cols[tab])
-legend('left',paste(rownames(tab),'=',tab,sep=' '),bty='n')
+plot(locs[order(ind)],add=T,col=cols[as.numeric(tab)[order(ind)]])
+# legend('left',paste(rownames(tab),'=',tab,sep=' '),bty='n')
+legend(-85,29,c('Sample sizes',paste(rownames(tab),'=',sprintf("%02d", tab),sep=' ')),
+       bty='n',adj=1,xjust=0)
 dev.off()
 
 
