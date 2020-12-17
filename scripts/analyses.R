@@ -1,7 +1,42 @@
 rm(list=ls())
-setwd('~/Desktop/professional/projects/Postdoc_FL/data/lek')
+library(rgdal)
 
+setwd('~/Desktop/professional/projects/Postdoc_FL/data/lek')
 d <- read.csv('lek_processed.csv')
+
+setwd('~/Desktop/professional/biblioteca/data/shapefiles/cb_2019_us_county_500k')
+shpfile <- 'cb_2019_us_county_500k.shp'
+shp <- readOGR(shpfile)
+
+
+tab <- table(d$County)
+
+tab <- tab[c(1,8,6,5,7,4,3)]
+
+
+fl <- subset(shp,STATEFP=='12')
+plot(fl)
+
+locs <- subset(fl,is.element(fl$NAME,rownames(tab)))
+fl$NAME
+
+ind <- rep(NA,nrow(tab))
+for(i in 1:nrow(tab)){
+  ind[i] <- which(fl$NAME==rownames(tab)[i])
+}
+cbind(ind,tab)
+
+cols <- colorRampPalette(c('chartreuse2','gray80','purple'))
+cols <- colorRampPalette(c('gray90','dodgerblue4'))
+cols <- cols(51)
+
+setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
+png('counties.png',width=5,height=6,units='in',res=300)
+plot(fl)
+# plot(locs,add=T,col=2)
+plot(locs[rank(ind)],add=T,col=cols[tab])
+legend('left',paste(rownames(tab),'=',tab,sep=' '),bty='n')
+dev.off()
 
 
 
@@ -466,20 +501,3 @@ text(b, 1.05, paste("n =", rowSums(tab)))
 dev.off()
 
 
-library(rgdal)
-
-setwd('~/Desktop/professional/biblioteca/data/shapefiles/cb_2019_us_county_500k')
-
-shpfile <- 'cb_2019_us_county_500k.shp'
-
-shp <- readOGR(shpfile)
-
-plot(shp)
-
-sort(unique(shp$STATEFP))
-x <- subset(shp,STATEFP=='12')
-plot(x)
-
-y <- subset(x,is.element(x$NAME,rownames(tab)))
-plot(x)
-plot(y,add=T,col=2)
