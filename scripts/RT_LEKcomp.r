@@ -95,7 +95,8 @@ table(d$rat, d$Year)
 
 table(d$Year)
 
-yr <- as.character(round(d$Year))
+# yr <- as.character(round(d$Year))
+yr <- as.character(floor(d$Year))
 levels(yr) <- as.character(1930:2020)
 plot(table(yr), las=2)                # look for event periods
 plot(table(yr), las=2, xlim=c(1960, 2019), ylab = "number of mentions")
@@ -114,6 +115,7 @@ which(table(yr) > 9)
 d$event <- NA
 lis <- as.numeric(names(which(table(yr) > 9)))  # create list of year-specific events only
 d$event[which(yr %in% lis)] <- yr[which(yr %in% lis)]
+exact <- table(d$event)
 
 # method 3: analyze only years with 10 or more obs but include margin of error +/- 1 year
 lis1 <- lis + 1
@@ -124,7 +126,9 @@ d$event[which(yr %in% lis2)] <- as.numeric(yr[which(yr %in% lis2)]) + 1
 table(d$event, useNA = "always")
 d$Year[which(is.na(d$event))]             # check NAs
 table(d$event, d$Year)                    # check results
+plus_minus <- table(d$event)
 
+barplot(rbind(exact[3:5],plus_minus[3:5]),beside=T)
 # define events -----------------------------------------------
 
 d$SCALE[which(d$SCALE == "Devastating")] <- "Extreme"
@@ -172,6 +176,7 @@ legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000060", pch=2:5)
 # dev.off()
 
 ind <- which(d$Year>1999)
+d$Year <- floor(d$Year)
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
 png('year_severity.png',width=10,height=6,units='in',res=300)
 par(mar=c(5,4,2,1))
@@ -181,7 +186,7 @@ plot(d$Year, d$rat, col="#FF000075",
 axis(1,seq(2000,2019,2))
 axis(2, at = 1:3, lab = c("Minor", "Major", "Extreme"))
 box()
-legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000090", pch=2:5,horiz=F,pt.lwd=1.25) 
+legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000090", pch=2:5,horiz=F,pt.lwd=1.25,bty='n') 
 dev.off()
 
 # longevity of event -------------------------------------
@@ -195,6 +200,8 @@ tapply(d$tim, d$event, sd, na.rm=T)
 
 max(d$tim, na.rm=T)                           # max y-axis
 min(d$Year[which(!is.na(d$tim))], na.rm = T)  # min x-axis
+
+d$Year <- floor(d$Year)
 
 png('temp_extent.png',width=10,height=6,units='in',res=300)
 par(mar=c(5,4,2,1))
@@ -213,6 +220,8 @@ d$recov <- as.numeric(as.character(d$Recovery.Time_Months))
 d$Recovery.Time_Months[grep("recover", d$Recovery.Time_Months)]   # check to see that all of these are "still recovering" or "not yet recovered"
 d$recov[grep("recover", d$Recovery.Time_Months)] <- 70
 data.frame(d$Recovery.Time_Months, d$recov)                       # check conversion
+
+d$Year <- floor(d$Year)
 
 #pdf(file="recovery.pdf", width=8, height=5)
 png('recovery.png',width=10,height=6,units='in',res=300)

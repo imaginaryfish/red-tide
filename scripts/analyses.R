@@ -8,11 +8,14 @@ setwd('~/Desktop/professional/biblioteca/data/shapefiles/cb_2019_us_county_500k'
 shpfile <- 'cb_2019_us_county_500k.shp'
 shp <- readOGR(shpfile)
 
-
 tab <- table(d$County)
-
 tab <- tab[c(1,8,6,5,7,4,3)]
 
+tab <- table(d$County,d$Interview.Number)
+tab <- tab[c(1,8,6,5,7,2,4,3),]
+tab[tab>0] <- 1
+tab <- rowSums(tab)
+tab <- as.table(tab)
 
 fl <- subset(shp,STATEFP=='12')
 plot(fl)
@@ -29,7 +32,7 @@ cbind(ind,tab)
 # cols <- colorRampPalette(c('chartreuse2','gray80','purple'))
 # cols <- colorRampPalette(c('gray95','royalblue4'))
 cols <- colorRampPalette(c('gray95','blue4'))
-cols <- cols(51)
+cols <- cols(16)
 
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
 png('counties.png',width=5,height=6,units='in',res=300)
@@ -37,7 +40,9 @@ plot(fl)
 # plot(locs,add=T,col=2)
 plot(locs[order(ind)],add=T,col=cols[as.numeric(tab)[order(ind)]])
 # legend('left',paste(rownames(tab),'=',tab,sep=' '),bty='n')
-legend(-85,29,c('Sample sizes',paste(rownames(tab),'=',sprintf("%02d", tab),sep=' ')),
+# legend(-85,29,c('Sample sizes',paste(rownames(tab),'=',sprintf("%02d", tab),sep=' ')),
+#        bty='n',adj=1,xjust=0)
+legend(-85,29,c('Sample sizes',paste(rownames(tab),'=',tab,sep=' ')),
        bty='n',adj=1,xjust=0)
 dev.off()
 
@@ -310,14 +315,14 @@ yr_region <- yr_region[,c(2,4,1)]
 yr_sum <- apply(yr_region,1,sum,na.rm=T)
 yr_region_ratio <- yr_region/yr_sum
 
-barplot(t(yr_region_ratio),las=2,legend.text = c('inshore','offshore','both'))
+# barplot(t(yr_region_ratio),las=2,legend.text = c('inshore','offshore','both'))
 
-# yr_region_scale <- table(d$Year,d$Offshore.or.Inshore.,d$SCALE)
-yr_region_scale <- table(yr,d$Offshore.or.Inshore.,d$SCALE)
-yr_region_scale <- yr_region_scale[,c(2,4,1),2] ### 1==Devastating, 2==Major, 3==Minor
-yr_sum <- apply(yr_region_scale,1,sum,na.rm=T)
-yr_region_ratio <- yr_region_scale/yr_sum
-barplot(t(yr_region_ratio),las=2,legend.text = c('inshore','offshore','both'),args.legend = list(bty='n'))
+# # yr_region_scale <- table(d$Year,d$Offshore.or.Inshore.,d$SCALE)
+# yr_region_scale <- table(yr,d$Offshore.or.Inshore.,d$SCALE)
+# yr_region_scale <- yr_region_scale[,c(2,4,1),2] ### 1==Devastating, 2==Major, 3==Minor
+# yr_sum <- apply(yr_region_scale,1,sum,na.rm=T)
+# yr_region_ratio <- yr_region_scale/yr_sum
+# barplot(t(yr_region_ratio),las=2,legend.text = c('inshore','offshore','both'),args.legend = list(bty='n'))
 
 
 region_scale <- table(d$Offshore.or.Inshore.,d$SCALE)
@@ -418,7 +423,7 @@ dev.off()
 
 
 tab <- table(d$County,d$event)
-tab <- tab[c(1,8,6,5,7,4,3),3:5]
+tab <- tab[c(1,8,6,5,7,2,4,3),3:5]
 tab1 <- t(tab)/colSums(tab)
 
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
@@ -440,7 +445,7 @@ text(b, 1.05, paste("n =", colSums(tab)))
 
 
 tab <- table(d$County,d$event)
-tab <- tab[c(1,8,6,5,7,4,3),3:5]
+tab <- tab[c(1,8,6,5,7,2,4,3),3:5]
 tab1 <- tab/rowSums(tab)
 tab1 <- tab1[,ncol(tab1):1]
 
@@ -480,7 +485,7 @@ dev.off()
 # region vs inshore/offshore  ----------------------------------
 
 tab <- table(d$County,d$Offshore.or.Inshore.)
-tab <- tab[c(1,8,6,5,7,4,3),-3]
+tab <- tab[c(1,8,6,5,7,2,4,3),-3]
 tab1 <- tab/rowSums(tab)
 
 cols <- colorRampPalette(c('darkseagreen1','deepskyblue4'))
