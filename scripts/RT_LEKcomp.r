@@ -131,8 +131,8 @@ plus_minus <- table(d$event)
 barplot(rbind(exact[3:5],plus_minus[3:5]),beside=T)
 # define events -----------------------------------------------
 
-d$SCALE[which(d$SCALE == "Devastating")] <- "Extreme"
-d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Extreme"))
+d$SCALE[which(d$SCALE == "Devastating")] #<- "Extreme"
+d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Devastating"))
 
 tab <- table(d$event, d$SCALE); tab
 tab1 <- tab / rowSums(tab)
@@ -168,7 +168,7 @@ plot(d$Year, d$rat, col="#FF000050",
      pch = as.numeric(d$region)+1, cex = 2, 
      xlab = "year", ylab = "event severity rating", axes = F, ylim = c(0.8, 3.2))
 axis(1)
-axis(2, at = 1:3, lab = c("minor", "major", "extreme"))
+axis(2, at = 1:3, lab = c("Minor", "Major", "Devastating"))
 box()
 legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000060", pch=2:5) 
 #abline(v=c(2003.5, 2005.5, 2013.5, 2014.5, 2017.5, 2019), lty=2, col=8)
@@ -177,6 +177,7 @@ legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000060", pch=2:5)
 
 ind <- which(d$Year>1999)
 d$Year <- floor(d$Year)
+d$region <- as.factor(d$region)
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
 png('year_severity.png',width=10,height=6,units='in',res=300)
 par(mar=c(5,4,2,1))
@@ -184,7 +185,7 @@ plot((d$Year), jitter(d$rat,.5), col="red",
      pch = as.numeric(d$region)+20, cex = 2, 
      xlab = "Year", ylab = "Event severity rating", axes = F, ylim = c(0.8, 3.5),xlim=c(2000,2019))
 axis(1,seq(2000,2019,1),las=2)
-axis(2, at = 1:3, lab = c("Minor", "Major", "Extreme"))
+axis(2, at = 1:3, lab = c("Minor", "Major", "Devastating"))
 box()
 legend("topleft", names(table(d$region)), pt.cex=1.75, col="red", pch=21:24,horiz=F,pt.lwd=1.25,bty='n') 
 dev.off()
@@ -215,6 +216,7 @@ d$region <- as.factor(d$region)
 # legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000090", pch=2:5) 
 # dev.off()
 
+b <- boxplot(d$tim~d$Year)
 png('temp_extent.png',width=10,height=6,units='in',res=300)
 par(mar=c(5,4,2,1))
 plot(1,1,xlim=c(2000,2019),ylim=c(0,20),xaxt='n',xlab='',ylab='Temporal extent of event (months)',las=2)
@@ -249,8 +251,9 @@ dev.off()
 
 # by event -----------------------------------------------
 
-d$SCALE[which(d$SCALE == "Devastating")] <- "Extreme"
-d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Extreme"))
+d$SCALE[which(d$SCALE == "Devastating")] #<- "Extreme"
+# d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Extreme"))
+d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Devastating"))
 
 tab <- table(d$event, d$SCALE)
 tab <- tab[-(1:2),]
@@ -278,12 +281,12 @@ par(mar = c(5,4,1,1))
 b <- barplot(t(tab1), beside = F, col = cols, ylim = c(0, 1.2), axes = F, 
     names.arg = row.names(tab1), las = 1, ylab="Proportion of ratings",
     args.legend = list(x = "top", col = cols, horiz = T,bty='n'),
-                legend.text = c("Minor", "Major", "Extreme"))
+                legend.text = c("Minor", "Major", "Devastating"))
 mtext(side = 1, line = 2.5, "Red tide event")
 # tail(table(d$event, d$SCALE))  # check that legend is correct
 axis(2, at = seq(0,1, 0.2), lab = seq(0,1, 0.2), las = 2)
 # text(b, 1.1, paste0(rowSums(tab)), las=2)
-text(b, 1.05, paste0("n=", rowSums(tab)), las=2)
+text(b, 1.05, paste0("n = ", rowSums(tab)), las=2)
 # abline(h = 0)
 dev.off()
 
@@ -494,9 +497,9 @@ sort(table(s1c))
 
 smin <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Minor")], ";"))
 smaj <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Major")], ";"))
-sext <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Extreme")], ";"))
+sext <- unlist(strsplit(d2$Species.Affected[which(d2$SCALE == "Devastating")], ";"))
 spp <- c(smin, smaj, sext)
-rat <- c(rep("minor", length(smin)), rep("major", length(smaj)), rep("extreme", length(sext)))
+rat <- c(rep("m=Minor", length(smin)), rep("Major", length(smaj)), rep("Devastating", length(sext)))
 
 dat <- data.frame(spp, rat, NA)
 names(dat)[3] <- "label"

@@ -340,10 +340,10 @@ cols <- colorRampPalette(c('darkseagreen1','deepskyblue4'))
 cols <- cols(3)
 
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
-png('scale_region.png',width=7,height=6,units='in',res=300)
+# png('scale_region.png',width=7,height=6,units='in',res=300)
 par(mar = c(5,4,1,1))
 b <- barplot(t(region_ratio2),
-             legend.text = c(rownames(region_ratio)),
+             legend.text = c("Both", "Inshore","Offshore"),
              args.legend = list(x='top',horiz=T,bty='n'),
              col=cols,
              ylab = "Proportion of area affected mentions",
@@ -351,7 +351,7 @@ b <- barplot(t(region_ratio2),
 mtext(side = 1, line= 2.5, "Severity")
 axis(2,seq(0,1,.2),las=1)
 text(b, 1.05, paste("n =", colSums(region_scale)))
-dev.off()
+# dev.off()
 
 ### alternate figure
 # b <- barplot(t(region_ratio),
@@ -454,7 +454,6 @@ tab1 <- tab1[,ncol(tab1):1]
 
 write.csv(tab,'event_county2.csv')
 
-png('event_county.png',width=8,height=6,units='in',res=300)
 par(mar = c(5,4,1,1))
 b <- barplot(t(tab1),
              legend.text = c(colnames(tab1)),
@@ -466,7 +465,7 @@ b <- barplot(t(tab1),
              xlab="Home county of interviewee")
 # mtext(side = 1, line= 2.5, "County")
 axis(2,seq(0,1,.2),las=1)
-text(b, 1.05, paste("n =", colSums(tab)))
+text(b, 1.05, paste("n =", rowSums(tab)))
 dev.off()
 
 # tab <- table(d$County,d$SCALE)

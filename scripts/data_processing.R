@@ -91,8 +91,8 @@ table(d$event, d$Year)                    # check results
 
 # define events -----------------------------------------------
 
-d$SCALE[which(d$SCALE == "Devastating")] <- "Extreme"
-d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Extreme"))
+d$SCALE[which(d$SCALE == "Devastating")] #<- "Extreme"
+d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Devastating"))
 
 tab <- table(d$event, d$SCALE); tab
 tab1 <- tab / rowSums(tab)
@@ -111,9 +111,6 @@ d$Recovery.Time_Months[grep("recover", d$Recovery.Time_Months)]   # check to see
 d$recov[grep("recover", d$Recovery.Time_Months)] <- 70
 data.frame(d$Recovery.Time_Months, d$recov)  
 
-# by event -----------------------------------------------
 
-d$SCALE[which(d$SCALE == "Devastating")] <- "Extreme"
-d$SCALE <- factor(d$SCALE, levels = c("Minor", "Major", "Extreme"))
 
 write.csv(d, 'lek_processed.csv')
