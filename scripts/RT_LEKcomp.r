@@ -180,13 +180,13 @@ d$Year <- floor(d$Year)
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
 png('year_severity.png',width=10,height=6,units='in',res=300)
 par(mar=c(5,4,2,1))
-plot(d$Year, d$rat, col="#FF000075", 
-     pch = as.numeric(d$region)+1, cex = 2, 
+plot((d$Year), jitter(d$rat,.5), col="red", 
+     pch = as.numeric(d$region)+20, cex = 2, 
      xlab = "Year", ylab = "Event severity rating", axes = F, ylim = c(0.8, 3.5),xlim=c(2000,2019))
-axis(1,seq(2000,2019,2))
+axis(1,seq(2000,2019,1),las=2)
 axis(2, at = 1:3, lab = c("Minor", "Major", "Extreme"))
 box()
-legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000090", pch=2:5,horiz=F,pt.lwd=1.25,bty='n') 
+legend("topleft", names(table(d$region)), pt.cex=1.75, col="red", pch=21:24,horiz=F,pt.lwd=1.25,bty='n') 
 dev.off()
 
 # longevity of event -------------------------------------
@@ -202,16 +202,26 @@ max(d$tim, na.rm=T)                           # max y-axis
 min(d$Year[which(!is.na(d$tim))], na.rm = T)  # min x-axis
 
 d$Year <- floor(d$Year)
+d$region <- as.factor(d$region)
+
+# png('temp_extent.png',width=10,height=6,units='in',res=300)
+# par(mar=c(5,4,2,1))
+# plot(d$Year, d$tim, col = "#FF000075", 
+#      pch = as.numeric(d$region)+1, cex = 2, xlim = c(2000, 2019), ylim = c(0, 20), 
+#       xlab = "Year", ylab = "Temporal extent of event (months)", axes = F)
+# axis(1,seq(2000,2019,2))
+# axis(2, las=2)
+# box()
+# legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000090", pch=2:5) 
+# dev.off()
 
 png('temp_extent.png',width=10,height=6,units='in',res=300)
 par(mar=c(5,4,2,1))
-plot(d$Year, d$tim, col = "#FF000075", 
-     pch = as.numeric(d$region)+1, cex = 2, xlim = c(2000, 2019), ylim = c(0, 20), 
-      xlab = "Year", ylab = "Temporal extent of event (months)", axes = F)
-axis(1,seq(2000,2019,2))
-axis(2, las=2)
-box()
-legend("topleft", names(table(d$region)), pt.cex=2, col="#FF000090", pch=2:5) 
+plot(1,1,xlim=c(2000,2019),ylim=c(0,20),xaxt='n',xlab='',ylab='Temporal extent of event (months)',las=2)
+boxplot(d$tim~d$Year,add=T,at=as.numeric(b$names),xaxt='n',yaxt='n',outline=F)
+axis(1,seq(2000,2019,1),las=2)
+points(jitter(d$Year),d$tim, col = 'red',pch = as.numeric(d$region)+20, cex = 2,lwd=1.25)
+legend("topleft", names(table(d$region)), pt.cex=1.75, col="red", pch=21:24,bty='n') 
 dev.off()
 
 ###########################   recovery after event   ###########################
@@ -223,16 +233,18 @@ data.frame(d$Recovery.Time_Months, d$recov)                       # check conver
 
 d$Year <- floor(d$Year)
 
+table(d$recov,d$Year)
+
 #pdf(file="recovery.pdf", width=8, height=5)
 png('recovery.png',width=10,height=6,units='in',res=300)
 par(mar=c(5,5,1,1))
-plot(d$Year, d$recov, col="#FF000075", 
-     pch = as.numeric(d$region)+1, cex = 2, xlab = "year", ylab = "Recovery time (years)", 
+plot(jitter(d$Year), jitter(d$recov), col="red", 
+     pch = as.numeric(d$region)+20, cex = 2, xlab = "year", ylab = "Recovery time (years)", 
      axes=F, ylim=c(0,75),xlim=c(2000,2019))
-axis(1, at=seq(2000, 2019,2))
+axis(1, at=seq(2000, 2019,1),las=2)
 axis(2, las=2, at=seq(0, 60, 12), lab=0:5)
 axis(2, at=70, lab="still \nrecovering", las=2)
-legend(2000, 60, names(table(d$region)), pt.cex=2, col="#FF000070", pch=2:5) 
+legend(2000, 60, names(table(d$region)), pt.cex=1.75, col="red", pch=21:24,bty='n') 
 dev.off()
 
 # by event -----------------------------------------------
@@ -278,6 +290,7 @@ dev.off()
 # by area --------------------------------------
 
 tab <- table(d$County, d$SCALE)
+tab <- tab[c(1,8,6,5,7,2,4,3),]
 tab1 <- tab / rowSums(tab)
 tab
 tab1
@@ -285,18 +298,15 @@ tab1
 chisq.test(tab)
 chisq.test(tab1)
 
-#pdf(file="by_area.pdf", width=6, height=5)
-
-par(mar=c(5,4,1,0.5))
-b <- barplot(t(tab1), beside = F, col = cols, ylim = c(0, 1.3), axes = F, 
-             args.legend=list(x = "top", horiz=T), legend.text = colnames(tab),
-             ylab="proportion of ratings                    ", 
-             xlab="home county of interviewee")
-axis(2, at = seq(0,1, 0.2), lab = seq(0,1, 0.2), las = 2)
-abline(h=0)                                      
+png('severity_county.png',width=8,height=6,units='in',res=300)
+par(mar = c(5,4,1,1))
+b <- barplot(t(tab1), beside = F, col = cols, ylim = c(0, 1.2), axes = F, 
+             args.legend=list(x = "top", horiz=T,bty='n'), legend.text = colnames(tab),
+             ylab="Proportion of ratings                    ", 
+             xlab="Home county of interviewee")
+axis(2,seq(0,1,.2),las=1)
 text(b, 1.05, paste("n =", rowSums(tab)))
-
-# dev.off()
+dev.off()
 
 # by area and event --------------------------
 #tab3 <- table(d$County, d$SCALE, d$event)

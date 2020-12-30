@@ -8,6 +8,8 @@ setwd('~/Desktop/professional/biblioteca/data/shapefiles/cb_2019_us_county_500k'
 shpfile <- 'cb_2019_us_county_500k.shp'
 shp <- readOGR(shpfile)
 
+
+# county map ----------------------------------
 tab <- table(d$County)
 tab <- tab[c(1,8,6,5,7,4,3)]
 
@@ -67,7 +69,7 @@ tab
 tab1
 
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
-png('evnt_spp_killed.png',width=7,height=6,units='in',res=300)
+# png('evnt_spp_killed.png',width=7,height=6,units='in',res=300)
 par(mar = c(5,4,1,1))
 b <- barplot(t(tab1), beside = F, col = c(3,4), 
              ylim = c(0, 1.3), axes = F, names.arg = rownames(tab), las = 1,  
@@ -78,14 +80,14 @@ mtext(side = 1, line=2.5, "Red tide event")
 axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
 # abline(h=0)
 text(b, 1.05, paste("n =", rowSums(tab)))
-dev.off()
+# dev.off()
 
 
 tab <- table(d2$SCALE, d2$grouper)
 tab1 <- tab/rowSums(tab)
 
 
-png('scale_spp_killed.png',width=7,height=6,units='in',res=300)
+# png('scale_spp_killed.png',width=7,height=6,units='in',res=300)
 par(mar = c(5,4,1,1))
 b <- barplot(t(tab1), beside = F, col = c(3,4), 
              ylim = c(0, 1.3), axes = F, names.arg = rownames(tab), las = 1,  
@@ -96,7 +98,7 @@ mtext(side = 1, line= 2.5, "Severity")
 axis(2, at=seq(0,1, 0.2), lab=seq(0,1, 0.2), las=2)
 # abline(h=0)
 text(b, 1.05, paste("n =", rowSums(tab)))
-dev.off()
+# dev.off()
 
 
 # tabulate all species affected -----------------------
@@ -245,13 +247,14 @@ table(dat$lab2)
 tab <- table(dat$lab2, dat$evnt)
 # tab <- table(dat$lab2, dat$area)
 
-
-tab <- tab[order(rowSums(tab)),]
+tab2 <- cbind(tab,rowSums(tab))
+tab2 <- tab2[order(rowSums(tab2)),]
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
-write.csv(tab,'spp_killed_evnt.csv')
+write.csv(tab2,'spp_killed_evnt.csv')
 # write.csv(tab,'spp_killed_scale.csv')
 # write.csv(tab,'spp_killed_area.csv')
 
+tab <- tab[order(rowSums(tab)),]
 tab <- tail(tab, 20)
 
 # cols <- rainbow(20)
@@ -451,7 +454,7 @@ tab1 <- tab1[,ncol(tab1):1]
 
 write.csv(tab,'event_county2.csv')
 
-png('event_county.png',width=7,height=6,units='in',res=300)
+png('event_county.png',width=8,height=6,units='in',res=300)
 par(mar = c(5,4,1,1))
 b <- barplot(t(tab1),
              legend.text = c(colnames(tab1)),
@@ -459,8 +462,9 @@ b <- barplot(t(tab1),
              # col = c('darkorange2','gray70','green4'),
              col=c('green4','gray70','darkorange2'),
              ylab = "Proportion of event mentions",
-             ylim=c(0,1.2),yaxt='n',las=1)
-mtext(side = 1, line= 2.5, "County")
+             ylim=c(0,1.2),yaxt='n',las=1,
+             xlab="Home county of interviewee")
+# mtext(side = 1, line= 2.5, "County")
 axis(2,seq(0,1,.2),las=1)
 text(b, 1.05, paste("n =", colSums(tab)))
 dev.off()
@@ -494,7 +498,7 @@ cols <- cols(3)
 barplot(t(tab1),col=cols)
 
 setwd('~/Desktop/professional/publications/2020/sedar_LEK_wp/figures')
-png('county_region.png',width=7,height=6,units='in',res=300)
+png('county_region.png',width=8,height=6,units='in',res=300)
 par(mar = c(5,4,1,1))
 b <- barplot(t(tab1),
              # legend.text = c(colnames(region_ratio2)),
